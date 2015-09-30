@@ -1,0 +1,220 @@
+\documentclass{sigchi}
+
+% Load basic packages
+\usepackage{balance}  % to better equalize the last page
+\usepackage{graphics} % for EPS, load graphicx instead 
+\usepackage{mathptmx}
+\usepackage[pdftex]{hyperref}
+\usepackage{color}
+\usepackage{booktabs}
+\usepackage{textcomp}
+\usepackage{microtype} % Improved Tracking and Kerning
+\usepackage{ccicons}  % Cite your images correctly!
+\usepackage{multicol}
+\usepackage{color} 
+\newcommand{\hl}[1]{\colorbox{yellow}{#1}}
+\usepackage{xspace}
+\def\algname{SPRING\xspace}
+
+% Paper metadata (use plain text, for PDF inclusion and later
+% re-using, if desired).  Use \emtpyauthor when submitting for review
+% so you remain anonymous.
+\def\plaintitle{Inferring Student Proficiency from Game Activity Logs  }
+\def\plainauthor{Mohammad H. Falakmasir, Jos\'{e} P. Gonz\'{a}lez-Brenes, Geoffrey J. Gordon, Kristen E. DiCerbo}
+\def\emptyauthor{}
+\def\plainkeywords{Authors' choice; of terms; separated; by
+  semicolons; include commas, within terms only; required.}
+\def\plaingeneralterms{Documentation, Standardization}
+
+% llt: Define a global style for URLs, rather that the default one
+\makeatletter
+\def\url@leostyle{%
+  \@ifundefined{selectfont}{
+    \def\UrlFont{\sf}
+  }{
+    \def\UrlFont{\small\bf\ttfamily}
+  }}
+\makeatother
+\urlstyle{leo}
+
+% To make various LaTeX processors do the right thing with page size.
+\def\pprw{8.5in}
+\def\pprh{11in}
+\special{papersize=\pprw,\pprh}
+\setlength{\paperwidth}{\pprw}
+\setlength{\paperheight}{\pprh}
+\setlength{\pdfpagewidth}{\pprw}
+\setlength{\pdfpageheight}{\pprh}
+
+% Make sure hyperref comes last of your loaded packages, to give it a
+% fighting chance of not being over-written, since its job is to
+% redefine many LaTeX commands.
+\definecolor{linkColor}{RGB}{6,125,233}
+\hypersetup{%
+  pdftitle={\plaintitle},
+% Use \plainauthor for final version.
+%  pdfauthor={\plainauthor},
+  pdfauthor={\emptyauthor},
+  pdfkeywords={\plainkeywords},
+  bookmarksnumbered,
+  pdfstartview={FitH},
+  colorlinks,
+  citecolor=black,
+  filecolor=black,
+  linkcolor=black,
+  urlcolor=linkColor,
+  breaklinks=true,
+}
+
+% create a shortcut to typeset table headings
+% \newcommand\tabhead[1]{\small\textbf{#1}}
+
+% End of preamble. Here it comes the document.
+\begin{document}
+
+\title{\plaintitle}
+
+\numberofauthors{4}
+\author
+{%
+  \alignauthor{\mbox{\hspace{-1.85em}Mohammad H. Falakmasir$^{\star, \#} $\;\;\; Jos\'{e} P. Gonz\'{a}lez-Brenes$^\star$ \;\;\; Geoffrey J. Gordon$^\S$ \;\;\; Kristen E. DiCerbo$^\star$}\\
+    \affaddr{$^\star$School Research}\\
+    \affaddr{Pearson}\\
+    \email{\{jose.gonzalez-brenes, kristen.dicerbo\}@pearson.com }\\
+    }
+  \alignauthor{\vphantom{Mohamamad Jose}
+    \affaddr{$^\#$Intelligent Systems Program} \\
+    \affaddr{University of Pittsburgh}\\
+    \email{falakmasir@pitt.edu}\\
+  }
+  \alignauthor{\vphantom{Mohamamad Jose}
+  	\affaddr{$^\S$Machine Learning}\\
+	\affaddr{Carnegie Mellon University} 
+  	\email{ggordon@cs.cmu.edu}\\
+  }
+}
+
+  
+\maketitle
+
+\begin{abstract}
+We present \textit{Student PRofficiency INferrer from Game data} (\algname), a novel machine learning algorithm that models game playing behavior. 
+We demonstrate \algname with data collected from students playing a collection of 12 educational mini-games.
+Our experiments suggests that \algname is a useful method to predict student test scores ($R^2$ =0.55 , Spearman $\rho$=0.82). 
+Moreover, we provide insights in how to use \algname to understand student exploration habits, misconceptions, and how to improve the game design based on their playing strategies.
+\end{abstract}
+
+\category{K.3.1}{Computer Uses in Education.}
+{}
+\keywords{Educational Games, Data-driven Learning, Hidden Markov Models, Stealth Assessment}
+
+\section{Introduction}
+Assessments are important because they collect evidence about student knowledge.
+Unfortunately, the process of  administering assessments is usually unconnected to the learning environment, and  is often  disruptive to the classroom. 
+Lately, the  political climate and the general population have been weighing in on the question of whether students are being tested too much.\cite{lazarin2014testing}
+Students now find themselves spending increasing amounts of time taking tests instead of learning.\cite{hofman2015rebalancing}
+For example, an initial  survey of the current state of testing in America revealed that students are taking an average of 113 standardized tests between pre-K and grade 12\cite{lazarin2014testing}.  %http://www.npr.org/sections/ed/2014/11/17/362339421/testing-how-much-is-too-much -- Done
+
+An alternative to traditional (formative and summative) assessment is \textit{stealth assessment} \cite{shute2013stealth}. The fundamental idea of stealth assessment (or invisible assessment) is that we can unobtrusively gather information from the ubiquitous digital interactions that students complete in the course of their ongoing activities and use that data to understand more than we ever have about what they know and can do \cite{shute2009melding}.
+Particularly in the context of educational games, stealth assessment can be achieved by employing evidence-centered design (ECD) \cite{almond2002enhancing}. The ECD framework provides the 
+ability to collect activity stream data as individuals interact with digital artifacts and provides a record of what students are doing as they progress through learning activities.
+This data can be modeled provide information about learning processes and has the potential to greatly reduce our need to subsequently deliver separate, discrete tests for the sole purpose of formatively measuring student proficiency \cite{mislevy2012design}.
+
+However, the unrestricted nature of educational games allows students to explore and interact with a learning environment in a broader more meaningful way and even the student logs from educational games that are designed based on the ECD framework usually involves observations that are not directly linked to the main educational objectives. Moreover, off-the-shelf probabilistic models and machine learning methods are unable to handle data collected from game logs because of the objective nature of the observations throughout the evidence identification and accumulation process of the ECD framework \cite{dicerbo2012implications}. 
+
+We faced three main challenges in this process. The majority of student interactions with our educational game involve moving objects (tiles) into pre-defined locations in the game level interface. Our first challenge was to combine these movements with continuous distribution with other interactions that are less frequent and have discrete distribution. Our second challenge was to find pattern that are predictive of student mastery. A large portion of student interactions are based on the logic of the games and we would like a method with minimal human authoring that is capable of inferring patterns that are able to distinguish between high- and low-performing students in each game level. Our educational game has 12 game levels in a predesigned order and students cannot progress to the next game level unless they successfully finish the previous game level. Early game levels involve basic concepts and the complexity and number of skills required to complete task increases by progressing through game levels. Our last challenge was to find a way to aggregate the patterns extracted from multiple game levels in an ensemble method that predicts the post-test scores.
+
+In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel machine learning pipeline that analyzes and transforms the high-dimensional student logs of an educational game into models that can be used to predict mastery in different skills. 
+Our framework is designed in a way that can capture sequential decision making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge specific to the skill domain.
+
+\section{Alice in AreaLand}
+\textit {Alice in AreaLand} is an educational game developed for research purposes. It focuses on teaching and assessing geometric measurement, specifically the understanding of area, among 6th grade students. The game targets three main stages in the development of area: 1) area unit iteration, 2) use of unit squares to measure area, and 3) use of composites to measure area. The current version has 12 game levels. A simple student scenario involves covering a 2D area with smaller unit squares placed end-to-end in non-overlapping fashion, combining the single squares into rows or columns, and then determining the number of rows or columns needed. Figure~\ref{fig:figure1} shows a screenshot of one game level.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\columnwidth]{figures/kracken}
+	\caption{A screenshot of hint provided in game level 11, \textit {You Kraken Me Up!}, in \textit {Alice in AreaLand}. Students should combine four squares into a column and create three copies of the column to cover the designated area and prevent the octopus from attacking \textit {Alice} while she crosses the bridge.}~\label{fig:figure1}
+\end{figure}
+
+Throughout the game,  \textit {Alice} is accompanied by \textit {Flat Cat} -- an assistant character who provides feedback and scaffolding to the player in the beginning of each game level and upon request when students push a hint button (represented by two magnifiers at the bottom center of Figure ~\ref{fig:figure1}). Earlier game levels are designed for students to learn about area unit iteration and usually require them to cover a number of predefined areas with unit squares (not necessarily in a non-overlapping fashion). By advancing through game levels, students are presented with three tools: \textit {Gluumi} for combining unit squares by gluing them together; \textit {Multy}, for making copies of different objects; and \textit {Esploda} for breaking compound shapes into single units.  There is no limit for completing a game level regarding time or number of actions students may execute. The students press the \textit {Go Alice} button (bottom left corner of Figure~\ref{fig:figure1}) if they deem their performance to be satisfactory for \textit {Alice} to proceed. Based on the covered area and the arrangement of the tiles, they either advance to the next level or receive a feedback and stay in the same level.
+
+\section{Dataset}
+Our dataset consists of time-stamped interactions of 129 students in 12 game levels. 
+For 77 students, we also have post-test scores from a paper-based exam with 20 questions in the 3 skills of geometric measurement.
+In total, there are 88,458 events recorded in the dataset from 1,510 game sessions, meaning that student tried some of the game levels for multiple times.
+Based on the ECD framework, beginning levels only involve area unit iteration skill and the other skills and related features are gradually added to the later game levels.
+We only used the trajectories of the students who participated in the post-test.
+In the case of multiple attempts in a game level, we only considered the trajectory from the first attempt.
+
+\section{SPRING Framework}
+The data processing pipeline of \algname consists of four stages: 1) Synthesis, 2) Modeling, 3) Aggregation, and 4) Verification. 
+First we divide students into two groups, one (\%80) for training and development purposes and the other (\%20) for test and verification.
+In the synthesis phase, we transform log data of different nature (eg. movements, use of the tools, requests for hints) in each game level to observable values that can be used as evidence for learning.
+In the modeling phase, we use the observations to train two Hidden Markov Model (HMM)s that capture the sequence of actions for high- and low-performing students.
+In the aggregation phase, we uses the likelihood of students' sequence of action in order to build a regression model that is predictive of the post-test results.
+Finally, in the verification phase, we test the regression model on the held-out set (\%20) and report the results.
+
+\subsection{Synthesis}
+In order to gather the evidence for learning from student trajectories of interactions with the game, we needed to create fearures that are homogenious and can be used in an interpretable model. 
+Each student trajectory consists of a sequence of discrete actions accompanied by some details that are usually continuous variables. 
+For example, for each movement there is a two dimensional coordinates of the target $x$ and $y$ and for each instance of using the gluumi tool, there is a variable that represents the size of the new object that has been created. 
+Our main challenge in this phase was to transform the movements into a set of observable values that are usefull as evidence for learning.
+In order to make sure that the model is generalizable across multiple game levels, we first used DBSCAN clustering algorithm \cite{ester1996density} on the $x$ and $y$ coordinates of the movements to extract the crucial regions within the game interface.
+Then we transformed each movement into its cluster number and considered outliers as a separate cluster.
+
+%Table ~\ref{tab:table1} shows the distribution of events in the log file.
+%
+%\begin{table*}[t]
+%	\centering
+%	\begin{tabular}{l l l r}
+%		  {\small\textit{Event Name}}
+%		& {\small \textit{Description}}
+%		& {\small \textit{Details}}
+%		& {\small \textit{\# Records(\%)}} \\
+%		\midrule
+%		object\_moved & Moving Unit Squares & (target x, target y) & \\
+%		combo\_moved & Moving Combined Units & (target x, target y) & \\
+%		hint & Request for Hint & - \\
+%		go\_alice & Request to Proceed & - & \\
+%		use\_gluumi & Create Composite Object & (size glued to, size new) \\
+%		use\_esploda & Break Composite Object & size exploded \\
+%		use\_multy & Copy Object & unit\_square or combo \\
+%		level\_succeed & Success & (\% Covered, \# Attempts) \\
+%		level\_fail & Failure & (\% Covered, \# Attempts) \\
+%		\bottomrule
+%	\end{tabular}
+%	\caption{Actions and Distribution}~\label{tab:table1}
+%\end{table*}
+
+\subsection{Modeling}
+In the modeling phase, we hypothesized that high- and low-performing students have similar usage patterns that are representative of their sequential decision-making process. 
+Our model should be able to successfully capture this difference across different game levels and use it to predict post-test scores.
+Hidden Markov Models are good candidate for the task of unsupervised analysis of sequential data.
+Given the sequence of student actions, we aim to infer meaningful sequence of (latent) states, which describe the process that generated the actions, along with statistical patterns that can describe and distinguish those states.
+
+\subsection{Aggregation}
+
+\subsection{Verification}
+
+\section{Empirical Evaluation}
+
+\section{Discussion}
+
+\section{Relation to Prior Work}
+In order to deal with such highly unstructured data, researchers often use carefully designed network structures (such as Bayesian Networks \cite{albrecht1998bayesian}) or game-specific heuristics and benchmarks generated by experts playing the game \cite{mandel2014offline,tastan2011learning}. However, this approach is extremely labor intensive and might fail to capture meaningful patterns in student exploratory habits within the game. Given these limitations, data-driven analysis of student interactions provides a powerful alternative that facilitates the discussions around what does and does not work in a particular educational game.
+
+The potential of computer games for educational purposes has been of interest since nearly the beginning of videogames. Unlike video games, which focus on creating an entertaining experience for the user, educational games require principles and strategies that engage students while maximizing their learning gain. Therefore, data-driven analysis of student behavior is crucial to better understand the learning process and improve the tools in the future.
+
+There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. \textit {Rumble Blocks}  is an educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2014using}, studied the alignment of game to its target learning goals by examining whether student solutions follows the targeted principals. They employ clustering techniques on the individual solutions created by actual students and use principle-relevant metric (PRM) to measure how closely the representative solution embodies a specific targeted principle. The results demonstrated a misalignment between the feedback provided to students and the targeted knowledge.
+
+\textit {Battleship Numberline} is another educational game for understanding fraction using number line estimation. Students attempt to explode target ships and submarines by estimating numbers on a number line. Lomas et al. \cite{lomas2013optimizing} performed a large-scale online experiment in order to study the effect of challenge on player motivation and learning. They presented different configurations of the game for different groups of students and used a combination of time spent and challenges attempted as a measure of engagement and the average success rate of each design configuration as a measure of challenge. The results showed a linear correlation between challenge (difficulty) and engagement, meaning the easier the game, the longer students played.
+
+\textit {Refraction} is another educational game for learning about fractions by splitting laser beams into fractional amounts to target spaceships by avoiding asteroids. Liu et al. \cite{liu2013predicting}, created an ensemble algorithm that combines elements of Markov models, player heuristic search, and collaborative filtering techniques with state-space clustering in order to predict player movements on last game-level based on the history of movements in previous game levels. Lee et al. \cite{lee2014learning} extended the former framework by building state-action graph and using feature selection techniques to reduce the number of features for each state. To ensure extensibility, they also tested the framework on another game \textit {DragonBox} and reported improvement over a Markov predictor.
+
+\section{Future Directions and Conclusion}
+
+
+\bibliographystyle{SIGCHI-Reference-Format}
+\bibliography{references}
+
+\end{document}
