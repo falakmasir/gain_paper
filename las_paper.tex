@@ -98,10 +98,12 @@
 \maketitle
 
 \begin{abstract}
-We present \textit{Student PRofficiency INferrer from Game data} (\algname), a novel machine learning algorithm that models game playing behavior. 
-We demonstrate \algname with data collected from students playing a collection of 12 educational mini-games.
-Our experiments suggests that \algname is a useful method to predict student test scores ($R^2$ =0.55 , Spearman $\rho$=0.82). 
-Moreover, we provide insights in how to use \algname to understand student exploration habits, misconceptions, and how to improve the game design based on their playing strategies.
+Student assessments are important in education because they allow collecting evidence about student progress. 
+Unfortunately, they can be very tedious to the stakeholders.
+We present a novel machine learning algorithm, \textit{Student PRofficiency INferrer from Game data} (\algname),that allows modeling  game playing behavior in educational games.
+We provide evidence from 12 educational mini-games that playing behavior is correlated with a Math assessment ($R^2$ =0.55 , Spearman $\rho$=0.82).
+Unlike prior work, \algname is a fully data-driven method and requires very little feature engineering.
+We provide insights in how to use \algname to understand student exploration habits, misconceptions, and how to improve the game design based on their playing strategies.
 \end{abstract}
 
 \category{K.3.1}{Computer Uses in Education.}
@@ -109,7 +111,7 @@ Moreover, we provide insights in how to use \algname to understand student explo
 \keywords{Educational Games, Data-driven Learning, Hidden Markov Models, Stealth Assessment}
 
 \section{Introduction}
-Assessments are important because they collect evidence about student knowledge.
+Educational assessments are important because they collect evidence about about  whether  the teaching goals are being met.
 Unfortunately, the process of  administering assessments is usually unconnected to the learning environment, and  is often  disruptive to the classroom. 
 Lately, the  political climate and the general population have been weighing in on the question of whether students are being tested too much.\cite{lazarin2014testing}
 Students now find themselves spending increasing amounts of time taking tests instead of learning.\cite{hofman2015rebalancing}
