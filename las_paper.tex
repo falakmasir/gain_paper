@@ -104,7 +104,7 @@
 \begin{abstract}
 Student assessments are important in education because they allow collecting evidence about student progress. 
 Unfortunately, they can be very tedious to the stakeholders.
-We present a novel machine learning algorithm, {Student Profficiency Inferrer from Game data} (\algname), that allows modeling  game playing behavior in educational games.
+We present a new machine learning analysis pipeline, {Student Profficiency Inferrer from Game data} (\algname), that allows modeling game playing behavior in educational games.
 Unlike prior work, \algname is a fully data-driven method that does not require costly domain knowledge engineering.
 We validate our method using data collected from students playing 12 educational mini-games.
 Our results suggest that  \algname is accurate   to predict Math assessments ($R^2$ =0.55 , Spearman $\rho$=0.82).
@@ -133,7 +133,7 @@ This data is used  to understand claims regarding what students know and what th
 
 
 
-% I generate tables with:  http://www.tablesgenerator.com/
+% I generate tables with:  http://www.tablesgenerator.com/ --- Thanks!
 
 A promising opportunity for invisible assessment is using log data collected from educational games.
 Unfortunately, engineering a system that parses logs is costly and time-consuming.
@@ -159,7 +159,7 @@ Traditional machine learning algorithms, and off-the-shelf data mining packages,
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Id}             & \textbf{User Id} & \textbf{Event Name} & \textbf{Event Data}        \\ \midrule
-1                       & ABC              & Game Start          & \{ \}                        \\
+1                       & ABC              & Game Start          & \{ \}                      \\
 2                       & ABC              & Move Object         & \{endPosX:363,endPosY:82\} \\
 3                       & ABC              & Move Object         & \{endPosX:361,endPosY:54\} \\
 4                       & ABC              & Insert Ruler        & \{EndOffsetX: -14\}        \\
@@ -169,7 +169,7 @@ Traditional machine learning algorithms, and off-the-shelf data mining packages,
 % http://www.tablesgenerator.com/#
 
 
-In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel machine learning algorithm that models game playing behavior.
+In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a new machine learning analysis pipeline that models game playing behavior.
 \algname allows modeling raw data in slot and filler structure.
 We demonstrate our approach on real student game playing data.
 Our experiments suggest that \algname can be used to predict student proficiency  without costly domain expertise.
@@ -201,6 +201,7 @@ Our experiments suggest that \algname can be used to predict student proficiency
 \end{algorithmic}
 \caption{The \algname algorithm. \label{alg:spring}}
 \end{algorithm}
+
 % You can find documentation here: https://en.wikibooks.org/wiki/LaTeX/Algorithms
 
 
@@ -216,29 +217,6 @@ In order to make sure that the model is generalizable across multiple game level
 Then we transformed each movement into its cluster number and considered outliers as a separate cluster.
 \hl{ use images for examples} 
 
-%Table ~\ref{tab:table1} shows the distribution of events in the log file.
-%
-%\begin{table*}[t]
-%	\centering
-%	\begin{tabular}{l l l r}
-%		  {\small\textit{Event Name}}
-%		& {\small \textit{Description}}
-%		& {\small \textit{Details}}
-%		& {\small \textit{\# Records(\%)}} \\
-%		\midrule
-%		object\_moved & Moving Unit Squares & (target x, target y) & \\
-%		combo\_moved & Moving Combined Units & (target x, target y) & \\
-%		hint & Request for Hint & - \\
-%		go\_alice & Request to Proceed & - & \\
-%		use\_gluumi & Create Composite Object & (size glued to, size new) \\
-%		use\_esploda & Break Composite Object & size exploded \\
-%		use\_multy & Copy Object & unit\_square or combo \\
-%		level\_succeed & Success & (\% Covered, \# Attempts) \\
-%		level\_fail & Failure & (\% Covered, \# Attempts) \\
-%		\bottomrule
-%	\end{tabular}
-%	\caption{Actions and Distribution}~\label{tab:table1}
-%\end{table*}
 
 \subsection{Sequence Modeling}
 In the modeling phase, we hypothesized that high- and low-performing students have similar usage patterns that are representative of their sequential decision-making process. 
