@@ -202,9 +202,9 @@ We now describe  the discretization, sequence modeling and regression steps.
 \State Extract Clusters from 2D movements (x, y) \hl{why only of moves? it's about fillers}
 \State Use Cluster IDs to transform movements into multinomial variables  \hl{What are cluster IDs? what are multinomial variables?}
 \State Use Converted Trajectories to Learn the State Sequence for High- and Low-Performing Students \hl{What are converted trajectories? Where do they come from?}
-\State Calculate the likelihood of Student Trajectories in the Held-Out Set 
-\State Train a Linear Regression Model using Student Trajectories on the Development Set
-\State Predict Student Post-Test Scores \h
+\State Calculate the likelihood of Student Trajectories in the Held-Out Set  \hl{how?}
+\State Train a Linear Regression Model using Student Trajectories on the Development Set \hl{how?}
+\State Predict Student Post-Test Scores \hl{so you need post test score data? this need to be explained}
 \end{algorithmic}
 \caption{The \algname pipeline. \label{alg:spring}}
 \end{algorithm}
@@ -245,7 +245,7 @@ We used the output of the discretization step as sequence of multinomial observa
 
 \subsection{Regression}
 
-In this phase, we created a linear regression model using 5-fold cross-validation \hl{So spring requires 5fold cross validation for it to work? ;-)} on the data in our development set. We tried different regularization methods (lasso and ridge regression) to find the optimum parameters and tested it on the heldout set in order to evaluate our model. 
+In this phase, we created a linear regression model using 5-fold cross-validation \hl{So spring requires 5fold cross validation for it to work? ;-) I think this goes in empirical evaluation} on the data in our development set. We tried different regularization methods (lasso and ridge regression) to find the optimum parameters and tested it on the heldout set in order to evaluate our model. 
 \hl{What are the features? Write equation}
 
 \section{Empirical Evaluation}
