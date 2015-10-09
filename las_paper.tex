@@ -102,9 +102,9 @@
 \maketitle
 
 \begin{abstract}
-Student assessments are important in education because they allow collecting evidence about student progress. 
-Unfortunately, they can be very tedious to the stakeholders.
-In contrast, stealth assessment is woven into the fabric of the instructional environment to support learning of important skills by carefully gathering learner performance data in order to dynamically make inference made about their level of relevant competency.
+		Traditional assessments are important in education because they allow collecting evidence about student progress. 
+		Unfortunately, they can be very tedious to their stakeholders.
+		In contrast, invisible assessment  unobtrusively gathers  performance data from students' daily activities to make inference about student relevant competency.
 We present a novel data analysis pipeline, {Student Profficiency Inferrer from Game data} (\algname), that allows modeling  game playing behavior in educational games.
 Unlike prior work, \algname is a fully data-driven method that does not require costly domain knowledge engineering.
 We validate our method using data collected from students playing 11 educational mini-games.
@@ -126,20 +126,20 @@ For these reasons, it is not surprising that the recent political climate and th
 
 According to Evidence Centered Design (ECD)~\cite{mislevy2012design}, the goal of assessment is to characterize the strength of evidence regarding claims one wants to make about individuals or groups.
 Therefore, the assessment process involves identifying, organizing, or creating activities for students so we may observe that evidence.
-An interesting alternative to traditional (summative) assessment is stealth assessment~\cite{shute2013stealth},
+	An interesting alternative to traditional (summative) assessment is invisible (often called stealth) assessment~\cite{shute2013stealth},
 where the evidence is gathered from leaners unobtrusively from the digital interactions of their ongoing activities.
 This data is used  to understand claims regarding what students know and what they can do \cite{shute2009melding}.
-Stealth assessment is also intended to remove (or seriously reduce) test anxiety, while not sacrificing validity and reliability \cite{shute2008you}.
+	Stealth assessment is also intended to reduce or eliminate test anxiety, while not sacrificing validity and reliability \cite{shute2008you}.
 
 % I generate tables with:  http://www.tablesgenerator.com/
 
 A promising opportunity for invisible assessment is using log data collected from educational games.
 Unfortunately, engineering a system that parses logs is costly and time-consuming.
-For example, prior work~\cite{shute2013stealth, shute2009melding} has relied extensively on subject matter expertise to define a student model in form of a  bayesian network (competency model) and extract features of the performance data related to each competency (evidence model).
+	For example, prior work~\cite{shute2013stealth, shute2009melding} has relied extensively on subject matter expertise to define a student model in form of a  Bayesian Network to build both the competency model, and to extract features of the performance data.
 %\hl{confirm if it's regression}
 %\hl{give examples of the things they did manually}.
 
-Invisible assessment from game data may become more accurate and cheaper to implement if the domain knowledge engineering could be automated by a data-driven process.
+	Our motivation is that invisible assessment from game data may become more accurate and cheaper to implement if the domain knowledge engineering could be automated by a data-driven process.
 Game data is often logged  with what we call a \textit{slot and filler} structure.
 In Table~\ref{tbl:log_example}, we show a simplified example of a real educational game log that uses slot and filler structure.
 The slots are discrete sets of events that are initiated by the leaner.
@@ -170,6 +170,14 @@ Traditional machine learning algorithms, and off-the-shelf data mining packages,
 \caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
 \end{table}
 % http://www.tablesgenerator.com/#
+	
+	
+	Unfortunately, conventional machine learning algorithms cannot input slot and filler data, as they  work in  structures called \textit{feature vectors} or \textit{sequences}.
+	Prior work~\cite{sequences} provides a   review of  the difference between feature vectors and sequences.
+	A feature vector representation requires mapping an observation onto a fixed number of features.
+	It is not trivial to map sequences of student actions that can be of arbitrary length into a feature vector that needs to be of a predetermined lenth.
+	Traditional feature vector classifiers,  like logistic regression or decision trees,  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data. 
+	In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for every observation, which does not occur in slot and filler structures.
 
 
 In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
@@ -187,15 +195,24 @@ Our experiments suggest that \algname can be used to predict student proficiency
 
 
 \section{SPRING Framework}
+	Algorithm~\ref{alg:spring} describes the SPRING algorithm.
+	\hl{Describe in words}
+	We now describe  the discretization, sequence modeling and regression steps.  
+	\hl{Why only these steps?}
 
+	\hl{This algorithm needs to be rewritten to be pseudo-code, or in an illustration}.
+	\hl{ Right now it's not understandable, for example, we never talk about post-tests}
+	\hl{We need to explain the input and output.}
+	\hl{I agree a  picture may be more suitable, but \textit{every} step has to be explained}
+	
 \begin{algorithm}
 \begin{algorithmic}
-\State Extract Clusters from 2D movements (x, y)
-\State Use Cluster IDs to transform movements into multinomial variables
-\State Use Converted Trajectories to Learn the State Sequence for High- and Low-Performing Students
-\State Calculate the likelihood of Student Trajectories in the Held-Out Set
-\State Train a Linear Regression Model using Student Trajectories on the Development Set
-\State Predict Student Post-Test Scores
+			\State Extract Clusters from 2D movements (x, y) \hl{why only of moves? it's about fillers}
+			\State Use Cluster IDs to transform movements into multinomial variables  \hl{What are cluster IDs? what are multinomial variables?}
+			\State Use Converted Trajectories to Learn the State Sequence for High- and Low-Performing Students \hl{What are converted trajectories? Where do they come from?}
+			\State Calculate the likelihood of Student Trajectories in the Held-Out Set  \hl{how?}
+			\State Train a Linear Regression Model using Student Trajectories on the Development Set \hl{how?}
+			\State Predict Student Post-Test Scores \hl{so you need post test score data? this need to be explained}
 \end{algorithmic}
 \caption{The \algname pipeline. \label{alg:spring}}
 \end{algorithm}
@@ -206,10 +223,10 @@ In this section, we describe  the discretization, sequence modeling and regressi
 
 
 \subsection{Discretization}
-In order to gather the evidence for learning from student trajectories of interactions with the game, we needed to create fearures that are homogenious and can be used in an interpretable model. 
+	In order to gather the evidence for learning from student trajectories \hl{?} of interactions with the game, we needed to create features that are homogenous \hl{?} and can be used in an interpretable model. 
 Each student trajectory consists of a sequence of discrete actions accompanied by some details that are usually continuous variables. 
 Our main challenge in this phase was to transform the movements into a set of observable values that are usefull as evidence for learning.
-In order to make sure that the model is generalizable across multiple game levels, we first used DBSCAN clustering algorithm \cite{ester1996density} on the $x$ and $y$ coordinates of the movements to extract the crucial regions within the game interface. 
+	In order to make sure that the model is generalizable across multiple game levels, we first used DBSCAN \hl{Say that in our implementation we used DBSCan, but the algorithm allows any clustering} clustering algorithm \cite{ester1996density} on the $x$ and $y$ coordinates of the movements to extract the crucial regions within the game interface. 
 DBSCAN was a good candidate because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori. 
 It is also robust to outliers which in our case can be interpreted as noisy movements that are not representative of learning competency. 
 After clustering, we transformed each movement into its cluster number and considered outliers as a separate cluster. 
@@ -218,7 +235,7 @@ Figure~\ref{fig:figurecluster} shows the clusters detected for one of the game l
 \begin{figure}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/cluster}
-	\caption{The clusters detected for game level 11, \textit {You Kraken Me Up!}, using DBSCAN method. We transform each movement action into corresponding cluster number during the discretization step.}~\label{fig:figurecluster}
+		\caption{The clusters detected for game level 11, \textit {You Kraken Me Up!}, using DBSCAN method. We transform each movement action into corresponding cluster number during the discretization step. \hl{I like this, put a screenshot of the game level too, so people can understand it}}~\label{fig:figurecluster}
 \end{figure}
 
 
@@ -236,7 +253,8 @@ We used the output of the discretization step as sequence of multinomial observa
 
 \subsection{Regression}
 
-In this phase, we created a linear regression model using 5-fold cross-validation on the data in our development set. We tried different regularization methods (lasso and ridge regression) to find the optimum parameters and tested it on the heldout set in order to evaluate our model. 
+	In this phase, we created a linear regression model using 5-fold cross-validation \hl{So spring requires 5fold cross validation for it to work? ;-) I think this goes in empirical evaluation} on the data in our development set. We tried different regularization methods (lasso and ridge regression) to find the optimum parameters and tested it on the heldout set in order to evaluate our model. 
+	\hl{What are the features? Write equation}
 
 \section{Empirical Evaluation}
 
@@ -283,7 +301,9 @@ Finally, we test the regression model on the held-out set (\%20) and report the 
 
 
 \subsection{Results}
-In order to evaluate our regression model we decided to compare its performance agains two baselines: 1) A regression model that uses success and failure of students in each game level as feature and 2) A regression model that uses the sequence lengths in each game level. Our model was able to significantly ourperform both baselines regarding to mean absolute errot and root mean squared error. Moreover, the $R^2$ correlation and Spearman $\rho$ of our predicted values with the true values was much higher than both baselines. Table \ref{tab:results} shows the results.
+	In order to evaluate our regression model we decided to compare its performance agains two baselines: 1) A regression model that uses success and failure of students in each game level as feature \hl{Write equation}and 2) A regression model that uses the sequence lengths in each game level \hl{Write equation}. 
+	Our model was able to significantly outperform both baselines regarding to mean absolute error and root mean squared error. 
+	Moreover, the $R^2$ correlation and Spearman $\rho$ of our predicted values with the true values was much higher than both baselines. Table \ref{tab:results} shows the results.
 
 
 \begin{table}[tbh]
@@ -298,6 +318,8 @@ In order to evaluate our regression model we decided to compare its performance 
 	\caption{The results of predicting post-test scores using three different feature sets}~\label{tab:results}	
 \end{table}
 
+	\hl{Show residual plot}
+	\hl{Show confidence intervals}
 
 \section{Relation to Prior Work}
 In order to deal with such highly unstructured data, researchers often use carefully designed network structures (such as Bayesian Networks \cite{albrecht1998bayesian,shute2013stealth}) or game-specific heuristics and benchmarks generated by experts playing the game \cite{mandel2014offline,tastan2011learning}. However, this approach is extremely labor intensive and might fail to capture meaningful patterns in student exploratory habits within the game. Given these limitations, data-driven analysis of student interactions provides a powerful alternative that facilitates the discussions around what does and does not work in a particular educational game.
