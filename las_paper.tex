@@ -107,7 +107,7 @@ Unfortunately, they can be very tedious to the stakeholders.
 In contrast, stealth assessment is woven into the fabric of the instructional environment to support learning of important skills by carefully gathering learner performance data in order to dynamically make inference made about their level of relevant competency.
 We present a novel data analysis pipeline, {Student Profficiency Inferrer from Game data} (\algname), that allows modeling  game playing behavior in educational games.
 Unlike prior work, \algname is a fully data-driven method that does not require costly domain knowledge engineering.
-We validate our method using data collected from students playing 12 educational mini-games.
+We validate our method using data collected from students playing 11 educational mini-games.
 Our results suggest that  \algname is accurate to predict Math assessments ($R^2$ =0.55 , Spearman $\rho$=0.82).
 %We provide insights in how to use \algname to understand student exploration habits, misconceptions, and how to improve the game design based on their playing strategies.
 \end{abstract}
@@ -158,7 +158,6 @@ Traditional machine learning algorithms, and off-the-shelf data mining packages,
 
 
 \begin{table}[tbh]
-\caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
 \begin{tabular}{@{}llll@{}}
 \toprule
 \textbf{Id}             & \textbf{User Id} & \textbf{Event Name} & \textbf{Event Data}        \\ \midrule
@@ -168,6 +167,7 @@ Traditional machine learning algorithms, and off-the-shelf data mining packages,
 4                       & ABC              & Insert Ruler        & \{EndOffsetX: -14\}        \\
 \multicolumn{1}{c}{...} &                  &                     &                            \\ \bottomrule
 \end{tabular}
+\caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
 \end{table}
 % http://www.tablesgenerator.com/#
 
@@ -241,7 +241,7 @@ In this phase, we created a linear regression model using 5-fold cross-validatio
 \section{Empirical Evaluation}
 
 \subsection{Game Environment}
-\textit {Alice in AreaLand} is an educational game developed for research purposes. It focuses on teaching and assessing geometric measurement, specifically the understanding of area, among 6th grade students. The game targets three main stages in the development of area: 1) area unit iteration, 2) use of unit squares to measure area, and 3) use of composites to measure area. The current version has 12 game levels. A simple student scenario involves covering a 2D area with smaller unit squares placed end-to-end in non-overlapping fashion, combining the single squares into rows or columns, and then determining the number of rows or columns needed. Figure~\ref{fig:figurekracken} shows a screenshot of one game level.
+\textit {Alice in AreaLand} is an educational game developed for research purposes. It focuses on teaching and assessing geometric measurement, specifically the understanding of area, among 6th grade students. The game targets three main stages in the development of area: 1) area unit iteration, 2) use of unit squares to measure area, and 3) use of composites to measure area. The current version has 11 game levels. A simple student scenario involves covering a 2D area with smaller unit squares placed end-to-end in non-overlapping fashion, combining the single squares into rows or columns, and then determining the number of rows or columns needed. Figure~\ref{fig:figurekracken} shows a screenshot of one game level.
 
 \begin{figure}
 	\centering
@@ -249,18 +249,30 @@ In this phase, we created a linear regression model using 5-fold cross-validatio
 	\caption{A screenshot of hint provided in game level 11, \textit {You Kraken Me Up!}, in \textit {Alice in AreaLand}. Students should combine four squares into a column and create three copies of the column to cover the designated area and prevent the octopus from attacking \textit {Alice} while she crosses the bridge.}~\label{fig:figurekracken}
 \end{figure}
 
-Throughout the game,  \textit {Alice} is accompanied by \textit {Flat Cat} -- an assistant character who provides feedback and scaffolding to the player in the beginning of each game level and upon request when students push a hint button (represented by two magnifiers at the bottom center of Figure ~\ref{fig:figure1}). Earlier game levels are designed for students to learn about area unit iteration and usually require them to cover a number of predefined areas with unit squares (not necessarily in a non-overlapping fashion). By advancing through game levels, students are presented with three tools: \textit {Gluumi} for combining unit squares by gluing them together; \textit {Multy}, for making copies of different objects; and \textit {Esploda} for breaking compound shapes into single units.  There is no limit for completing a game level regarding time or number of actions students may execute. The students press the \textit {Go Alice} button (bottom left corner of Figure~\ref{fig:figure1}) if they deem their performance to be satisfactory for \textit {Alice} to proceed. Based on the covered area and the arrangement of the tiles, they either advance to the next level or receive a feedback and stay in the same level.
+Throughout the game,  \textit {Alice} is accompanied by \textit {Flat Cat} -- an assistant character who provides feedback and scaffolding to the player in the beginning of each game level and upon request when students push a hint button (represented by two magnifiers at the bottom center of Figure ~\ref{fig:figurekracken}). Earlier game levels are designed for students to learn about area unit iteration and usually require them to cover a number of predefined areas with unit squares (not necessarily in a non-overlapping fashion). By advancing through game levels, students are presented with three tools: \textit {Gluumi} for combining unit squares by gluing them together; \textit {Multy}, for making copies of different objects; and \textit {Esploda} for breaking compound shapes into single units.  There is no limit for completing a game level regarding time or number of actions students may execute. The students press the \textit {Go Alice} button (bottom left corner of Figure~\ref{fig:figurekracken}) if they deem their performance to be satisfactory for \textit {Alice} to proceed. Based on the covered area and the arrangement of the tiles, they either advance to the next level or receive a feedback and stay in the same level.
 
 \subsection{Dataset} 
-Our dataset consists of time-stamped interactions of 129 students in 12 game levels. 
+Our dataset consists of time-stamped interactions of 129 students in 11 game levels. 
 For 77 students, we also have post-test scores from a paper-based exam with 20 questions in the 3 skills of geometric measurement.
 In total, there are 88,458 events recorded in the dataset from 1,510 game sessions, meaning that student tried some of the game levels for multiple times.
 Based on the ECD framework, beginning levels only involve area unit iteration skill and the other skills and related features are gradually added to the later game levels.
+Figure \ref{fig:frequency} shows the frequency of different events in each game level. As depicted in Figure \ref{fig:frequency}, the student interactions with the system in all game levels is dominated by movements.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\columnwidth]{figures/frequency}
+	\caption{Frequency of Events in Each Game Level}~\label{fig:frequency}
+\end{figure}
+
 We only used the trajectories of the students who participated in the post-test.
 In the case of multiple attempts in a game level, we only considered the trajectory from the first attempt.
+Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level.
 
-\hl{histogram of events}
-\hl{descriptive statistics} 
+\begin{figure}[b]
+	\centering
+	\includegraphics[width=0.9\columnwidth]{figures/boxplot}
+	\caption{Boxplot of Sequence Length in Each Game Level}~\label{fig:boxplot}
+\end{figure}
 
 \subsection{Experimental Setup}
 First we divide students into two groups, one (\%80) for training and development purposes and the other (\%20) for test and verification.
@@ -276,24 +288,27 @@ In order to evaluate our regression model we decided to compare its performance 
 
 \begin{table}[tbh]
 	\centering
-	\caption{The results of predicting post-test scores using three different feature sets}
-	\label{results}
 	\begin{tabular}{@{}lllll@{}}
 		\toprule
-		\begin{tabular}[c]{@{}l@{}}Prediction\\ Method\end{tabular}            & \begin{tabular}[c]{@{}l@{}}$R^2$\end{tabular} & \begin{tabular}[c]{@{}l@{}}$\rho$\end{tabular} & \begin{tabular}[c]{@{}l@{}}MAE \end{tabular} & RMSE \\ \midrule
+		\begin{tabular}[c]{@{}l@{}}\textbf{Predictive}\\ \textbf{Features}\end{tabular}            & \begin{tabular}[c]{@{}l@{}}\textbf{$R^2$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{$\rho$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{MAE}\end{tabular} & \textbf{RMSE}\\ \midrule
 		\begin{tabular}[c]{@{}l@{}}Sequence Length\\ (Normalized)\end{tabular} & 0.06                                                     & 0.79                                                 & 3.24                                                          & 4.15 \\
 		Success / Failure                                                      & 0.01                                                     & 0.63                                                 & 3.22                                                          & 4.14 \\
 		\algname                                                       & 0.55                                                     & 0.82                                                 & 2.84                                                          & 3.35 \\ \bottomrule
 	\end{tabular}
+	\caption{The results of predicting post-test scores using three different feature sets}~\label{tab:results}	
 \end{table}
 
 
 \section{Relation to Prior Work}
-In order to deal with such highly unstructured data, researchers often use carefully designed network structures (such as Bayesian Networks \cite{albrecht1998bayesian}) or game-specific heuristics and benchmarks generated by experts playing the game \cite{mandel2014offline,tastan2011learning}. However, this approach is extremely labor intensive and might fail to capture meaningful patterns in student exploratory habits within the game. Given these limitations, data-driven analysis of student interactions provides a powerful alternative that facilitates the discussions around what does and does not work in a particular educational game.
+In order to deal with such highly unstructured data, researchers often use carefully designed network structures (such as Bayesian Networks \cite{albrecht1998bayesian,shute2013stealth}) or game-specific heuristics and benchmarks generated by experts playing the game \cite{mandel2014offline,tastan2011learning}. However, this approach is extremely labor intensive and might fail to capture meaningful patterns in student exploratory habits within the game. Given these limitations, data-driven analysis of student interactions provides a powerful alternative that facilitates the discussions around what does and does not work in a particular educational game.
 
 The potential of computer games for educational purposes has been of interest since nearly the beginning of videogames. Unlike video games, which focus on creating an entertaining experience for the user, educational games require principles and strategies that engage students while maximizing their learning gain. Therefore, data-driven analysis of student behavior is crucial to better understand the learning process and improve the tools in the future.
 
-There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. \textit {Rumble Blocks}  is an educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2014using}, studied the alignment of game to its target learning goals by examining whether student solutions follows the targeted principals. They employ clustering techniques on the individual solutions created by actual students and use principle-relevant metric (PRM) to measure how closely the representative solution embodies a specific targeted principle. The results demonstrated a misalignment between the feedback provided to students and the targeted knowledge.
+There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. \textit{Newton's Playground} is an ECD based educational game with 74 problems that designed to teach qualitative physics to students in eighth- and ninth-grade. Students have to guide a green ball to a red ball by creating simple machines. 
+Everything obeys the basic rules of physics relating to gravity and Newton’s three laws of motion. 
+Shute et al. \cite{shute2013stealth} studied the effect of ECD design on student learning and found that students who played the game in a 4 hour session, showed significant improved in their qualitative, conceptual physics understanding.
+
+\textit {Rumble Blocks}  is another educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2014using}, studied the alignment of game to its target learning goals by examining whether student solutions follows the targeted principals. They employ clustering techniques on the individual solutions created by actual students and use principle-relevant metric (PRM) to measure how closely the representative solution embodies a specific targeted principle. The results demonstrated a misalignment between the feedback provided to students and the targeted knowledge.
 
 \textit {Battleship Numberline} is another educational game for understanding fraction using number line estimation. Students attempt to explode target ships and submarines by estimating numbers on a number line. Lomas et al. \cite{lomas2013optimizing} performed a large-scale online experiment in order to study the effect of challenge on player motivation and learning. They presented different configurations of the game for different groups of students and used a combination of time spent and challenges attempted as a measure of engagement and the average success rate of each design configuration as a measure of challenge. The results showed a linear correlation between challenge (difficulty) and engagement, meaning the easier the game, the longer students played.
 
