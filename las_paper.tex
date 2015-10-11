@@ -19,6 +19,9 @@
 \usepackage{booktabs}
 \def\algname{SPRING\xspace}
 
+\floatname{algorithm}{Procedure}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
 
 % Paper metadata (use plain text, for PDF inclusion and later
 % re-using, if desired).  Use \emtpyauthor when submitting for review
@@ -145,40 +148,31 @@ In Table~\ref{tbl:log_example}, we show a simplified example of a real education
 The slots are discrete sets of events that are initiated by the leaner.
 Each slot may accept zero to multiple fillers. 
 Each filler represents a value of a property of the slot event.
-For example, a "move" event  that represents that the learner moved an object in the screen may have an $x$ and $y$ fillers, to represent the target position in two-dimensional space.
+For example, a ``move" event  that represents that the learner moved an object in the screen may have an $x$ and $y$ fillers, to represent the target position in two-dimensional space.
 Generic machine learning algorithms input \textit{feature vectors} or \textit{sequences} and not slot and filler structures.
 
-% Not sure why and how?!
-\hl{Describe what are feature-vectors methods and sequences}.
-
-Traditional machine learning algorithms, and off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot help use slot and filler data because
-
-% Not sure why and how?!
-\hl{ complete. describe why each (e.g, regression trees / HMMs) cannot be used for this data}.
-
-
 \begin{table}[tbh]
-\begin{tabular}{@{}llll@{}}
-\toprule
-\textbf{Id}             & \textbf{User Id} & \textbf{Event Name} & \textbf{Event Data}        \\ \midrule
-1                       & ABC              & Game Start          & \{ \}                        \\
-2                       & ABC              & Move Object         & \{endPosX:363,endPosY:82\} \\
-3                       & ABC              & Move Object         & \{endPosX:361,endPosY:54\} \\
-4                       & ABC              & Insert Ruler        & \{EndOffsetX: -14\}        \\
-\multicolumn{1}{c}{...} &                  &                     &                            \\ \bottomrule
-\end{tabular}
-\caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
+	\begin{tabular}{@{}llll@{}}
+		\toprule
+		\textbf{Id}             & \textbf{User Id} & \textbf{Event Name} & \textbf{Event Data}        \\ \midrule
+		1                       & ABC              & Game Start          & \{ \}                        \\
+		2                       & ABC              & Move Object         & \{endPosX:363,endPosY:82\} \\
+		3                       & ABC              & Move Object         & \{endPosX:361,endPosY:54\} \\
+		4                       & ABC              & Open Toolbox        & \{\}        \\
+		4                       & ABC              & Activate Tool        & \{tool:gluumi\}        \\
+		5                       & ABC              & Use Gluumi        & \{sizeGluedTo:8,sizeNew:9\} \\        
+		\multicolumn{1}{c}{...} &                  &                     &                            \\ \bottomrule
+	\end{tabular}
+	\caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
 \end{table}
 % http://www.tablesgenerator.com/#
-	
-	
-	Unfortunately, conventional machine learning algorithms cannot input slot and filler data, as they  work in  structures called \textit{feature vectors} or \textit{sequences}.
-	Prior work~\cite{sequences} provides a   review of  the difference between feature vectors and sequences.
-	A feature vector representation requires mapping an observation onto a fixed number of features.
-	It is not trivial to map sequences of student actions that can be of arbitrary length into a feature vector that needs to be of a predetermined lenth.
-	Traditional feature vector classifiers,  like logistic regression or decision trees,  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data. 
-	In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for every observation, which does not occur in slot and filler structures.
 
+Unfortunately, conventional machine learning algorithms cannot input slot and filler data, as they  work in  structures called \textit{feature vectors} or \textit{sequences}.
+Prior work~\cite{sequences} provides a   review of  the difference between feature vectors and sequences.
+A feature vector representation requires mapping an observation onto a fixed number of features.
+It is not trivial to map sequences of student actions that can be of arbitrary length into a feature vector that needs to be of a predetermined lenth.
+Traditional feature vector classifiers,  like logistic regression or decision trees,  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data. 
+In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for every observation, which does not occur in slot and filler structures.
 
 In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 \algname allows modeling raw data in slot and filler structure.
@@ -195,38 +189,23 @@ Our experiments suggest that \algname can be used to predict student proficiency
 
 
 \section{SPRING Framework}
-	Algorithm~\ref{alg:spring} describes the SPRING algorithm.
-	\hl{Describe in words}
-	We now describe  the discretization, sequence modeling and regression steps.  
-	\hl{Why only these steps?}
 
-	\hl{This algorithm needs to be rewritten to be pseudo-code, or in an illustration}.
-	\hl{ Right now it's not understandable, for example, we never talk about post-tests}
-	\hl{We need to explain the input and output.}
-	\hl{I agree a  picture may be more suitable, but \textit{every} step has to be explained}
-	
-\begin{algorithm}
-\begin{algorithmic}
-			\State Extract Clusters from 2D movements (x, y) \hl{why only of moves? it's about fillers}
-			\State Use Cluster IDs to transform movements into multinomial variables  \hl{What are cluster IDs? what are multinomial variables?}
-			\State Use Converted Trajectories to Learn the State Sequence for High- and Low-Performing Students \hl{What are converted trajectories? Where do they come from?}
-			\State Calculate the likelihood of Student Trajectories in the Held-Out Set  \hl{how?}
-			\State Train a Linear Regression Model using Student Trajectories on the Development Set \hl{how?}
-			\State Predict Student Post-Test Scores \hl{so you need post test score data? this need to be explained}
-\end{algorithmic}
-\caption{The \algname pipeline. \label{alg:spring}}
-\end{algorithm}
-% I am not sure if we need a algorithm. A picture might be more suitable.
+In this section, we describe  the discretization, sequence modeling and regression steps of \algname
+%Procedure~\ref{alg:spring} describes the SPRING framework.
+%\hl{Describe in words}
+%We now describe  the discretization, sequence modeling and regression steps.  
+%\hl{Why only these steps?}
 
-
-In this section, we describe  the discretization, sequence modeling and regression steps of Algorithm ~\ref{alg:spring}.
-
+%\hl{This algorithm needs to be rewritten to be pseudo-code, or in an illustration}.
+%\hl{ Right now it's not understandable, for example, we never talk about post-tests}
+%\hl{We need to explain the input and output.}
+%\hl{I agree a  picture may be more suitable, but \textit{every} step has to be explained}
 
 \subsection{Discretization}
-	In order to gather the evidence for learning from student trajectories \hl{?} of interactions with the game, we needed to create features that are homogenous \hl{?} and can be used in an interpretable model. 
+In order to gather the evidence for learning from student trajectories \hl{?} of interactions with the game, we needed to create features that are homogenous \hl{?} and can be used in an interpretable model. 
 Each student trajectory consists of a sequence of discrete actions accompanied by some details that are usually continuous variables. 
 Our main challenge in this phase was to transform the movements into a set of observable values that are usefull as evidence for learning.
-	In order to make sure that the model is generalizable across multiple game levels, we first used DBSCAN \hl{Say that in our implementation we used DBSCan, but the algorithm allows any clustering} clustering algorithm \cite{ester1996density} on the $x$ and $y$ coordinates of the movements to extract the crucial regions within the game interface. 
+In order to make sure that the model is generalizable across multiple game levels, we first used DBSCAN \hl{Say that in our implementation we used DBSCan, but the algorithm allows any clustering} clustering algorithm \cite{ester1996density} on the $x$ and $y$ coordinates of the movements to extract the crucial regions within the game interface. 
 DBSCAN was a good candidate because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori. 
 It is also robust to outliers which in our case can be interpreted as noisy movements that are not representative of learning competency. 
 After clustering, we transformed each movement into its cluster number and considered outliers as a separate cluster. 
@@ -234,9 +213,59 @@ Figure~\ref{fig:figurecluster} shows the clusters detected for one of the game l
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.9\columnwidth]{figures/cluster}
-		\caption{The clusters detected for game level 11, \textit {You Kraken Me Up!}, using DBSCAN method. We transform each movement action into corresponding cluster number during the discretization step. \hl{I like this, put a screenshot of the game level too, so people can understand it}}~\label{fig:figurecluster}
+	\includegraphics[width=0.9\columnwidth]{figures/glacier}
+		\caption{The clusters detected for game level 2, \textit {None Shall Pass!}, using DBSCAN method. We transform each movement action into corresponding cluster number during the discretization step.}~\label{fig:figurecluster}
 \end{figure}
+
+We replace each (slot, filler) tuple with its corresponding clusterID. Procedure~\ref{alg:discretize} shows the steps.
+
+\begin{algorithm}
+	\begin{algorithmic}
+		\Procedure{Discretize}{S}
+		\State{A = empty dictionary of slots and possible fillers}
+		\For{each sequence s in S }
+		\For{each action a in s}
+		\If{a.filler $\neq \varnothing$}
+		\State{A[a.slot].append(a.filler)}
+		\EndIf
+		\EndFor
+		\EndFor
+		\State
+		\For{each slot and fillers tuple in A}
+		\State{clustersIDs = DBSCAN(a.fillers)}
+		\State{C[a.slot] = K-NN classifier on fillers and clusterIDs}
+		\EndFor
+		\State
+		\State{D = [][]\textit{ --2D array of multinomial observations}}
+		\For{each sequence s in S}
+		\State{P[i] = s.post-test}
+		\For{each action a in s}
+		\State{D[i,j] = C[a.slot].predict(filler)}
+		\EndFor
+		\EndFor
+		\State \Return{D}
+		\EndProcedure
+		
+		%	\State	
+		%	
+		%	\Procedure{TrainHMM}{S,C}
+		%	\EndProcedure
+		%	
+		%	\State{}			
+		%				
+		%				
+		%	
+		%	\Procedure{LearnModel}{S}
+		%		\State{D, P = Discretize(A,S)}
+		%		\State{Low, High = TrainHMM(S,C)}
+		%		\State \Return{Low, High}
+		%	\EndProcedure
+		
+		
+	\end{algorithmic}
+	\caption{The Discretization Step of \algname \label{alg:discretize}}
+\end{algorithm}
+
 
 
 \subsection{Sequence Modeling}
@@ -310,8 +339,8 @@ Finally, we test the regression model on the held-out set (\%20) and report the 
 	\centering
 	\begin{tabular}{@{}lllll@{}}
 		\toprule
-		\begin{tabular}[c]{@{}l@{}}\textbf{Predictive}\\ \textbf{Features}\end{tabular}            & \begin{tabular}[c]{@{}l@{}}\textbf{$R^2$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{$\rho$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{MAE}\end{tabular} & \textbf{RMSE}\\ \midrule
-		\begin{tabular}[c]{@{}l@{}}Sequence Length\\ (Normalized)\end{tabular} & 0.06                                                     & 0.79                                                 & 3.24                                                          & 4.15 \\
+		\begin{tabular}[c]{@{}l@{}}\textbf{Predictive Features}\end{tabular}            & \begin{tabular}[c]{@{}l@{}}\textbf{$R^2$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{$\rho$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{MAE}\end{tabular} & \textbf{RMSE}\\ \midrule
+		\begin{tabular}[c]{@{}l@{}}Sequence Length (Normal)\end{tabular} & 0.06                                                     & 0.79                                                 & 3.24                                                          & 4.15 \\
 		Success / Failure                                                      & 0.01                                                     & 0.63                                                 & 3.22                                                          & 4.14 \\
 		\algname                                                       & 0.55                                                     & 0.82                                                 & 2.84                                                          & 3.35 \\ \bottomrule
 	\end{tabular}
