@@ -129,7 +129,7 @@ For these reasons, it is not surprising that the recent political climate and th
 
 According to Evidence Centered Design (ECD)~\cite{mislevy2012design}, the goal of assessment is to characterize the strength of evidence regarding claims one wants to make about individuals or groups.
 Therefore, the assessment process involves identifying, organizing, or creating activities for students so we may observe that evidence.
-An interesting alternative to traditional (summative) assessment is invisible (often called stealth) assessment~\cite{shute2013stealth},
+An interesting alternative to traditional summative assessment is invisible (or stealth) assessment~\cite{shute2013stealth},
 where the evidence is gathered from leaners unobtrusively from the digital interactions of their ongoing activities.
 This data is used  to understand claims regarding what students know and what they can do \cite{shute2009melding}.
 Stealth assessment is also intended to reduce or eliminate test anxiety, while not sacrificing validity and reliability \cite{shute2008you}.
@@ -167,9 +167,9 @@ For example, a ``move" event  that represents the learner moved an object in the
 Conventional machine learning algorithms cannot input slot and filler data, as they  work in  structures called \textit{feature vectors} or \textit{sequences}.
 Prior work~\cite{sequences} provides a   review of  the difference between feature vectors and sequences.
 A feature vector representation requires mapping an observation onto a fixed number of features.
-It is not trivial to map sequences of student actions that can be of arbitrary length into a feature vector that needs to be of a predetermined lenth.
+It is not trivial to map sequences of student actions that can be of an arbitrary length into a feature vector that needs to be of a predetermined dimension.
 Traditional feature vector classifiers,  like logistic regression or decision trees,  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data as input. 
-In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for every observation, which does not occur in slot and filler structures.
+In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for every observation, which does not occur in slot and filler structures because  different slots may use different filler attributes.
 
 In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 \algname allows modeling raw data in slot and filler structure.
