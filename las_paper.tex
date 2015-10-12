@@ -18,10 +18,26 @@
 \usepackage{algpseudocode} 
 \usepackage{booktabs}
 \def\algname{SPRING\xspace}
+\DeclareMathOperator*{\argmin}{argmin}
+\DeclareMathOperator*{\argmax}{argmax}
 
 \floatname{algorithm}{Procedure}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing,calc}
+\newcommand{\tikzmark}[1]{\tikz[overlay,remember picture] \node (#1) {};}
+\newcommand*{\AddNote}[4]{%
+    \begin{tikzpicture}[overlay, remember picture]
+        \draw [decoration={brace,amplitude=0.2em},decorate, thick, darkgray]
+            ($(#3)!(#1.north)!($(#3)-(0,1)$)$) --  
+            ($(#3)!(#2.south)!($(#3)-(0,1)$)$)
+                node [align=center, text width=2.5cm, pos=0.5, anchor=west] {#4};
+    \end{tikzpicture}
+}%
+
 
 % Paper metadata (use plain text, for PDF inclusion and later
 % re-using, if desired).  Use \emtpyauthor when submitting for review
@@ -32,6 +48,7 @@
 \def\plainkeywords{Authors' choice; of terms; separated; by
   semicolons; include commas, within terms only; required.}
 \def\plaingeneralterms{Documentation, Standardization}
+
 
 % llt: Define a global style for URLs, rather that the default one
 \makeatletter
@@ -153,8 +170,8 @@ For example, a ``move" event  that represents the learner moved an object in the
 		\toprule
 		\textbf{Id}             & \textbf{User Id} & \textbf{Event Name} & \textbf{Event Data}        \\ \midrule
 		1                       & ABC              & Game Start          & \{ \}                        \\
-		2                       & ABC              & Move Object         & \{endPosX:363,endPosY:82\} \\
-		3                       & ABC              & Move Object         & \{endPosX:361,endPosY:54\} \\
+		2                       & ABC              & Move Object         & \{X:363,Y:82\} \\
+		3                       & ABC              & Move Object         & \{X:361,Y:54\} \\
 		4                       & ABC              & Open Toolbox        & \{\}        \\
 		4                       & ABC              & Activate Tool        & \{tool:gluumi\}        \\
 		5                       & ABC              & Use Gluumi        & \{sizeGluedTo:8,sizeNew:9\} \\        
@@ -162,6 +179,7 @@ For example, a ``move" event  that represents the learner moved an object in the
 	\end{tabular}
 	\caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
 \end{table}
+\hl{I renamed X and Y for simplicity, hope that's ok} 
 % http://www.tablesgenerator.com/#
 
 Conventional machine learning algorithms cannot input slot and filler data, as they  work in  structures called \textit{feature vectors} or \textit{sequences}.
@@ -169,7 +187,9 @@ Prior work~\cite{sequences} provides a   review of  the difference between featu
 A feature vector representation requires mapping an observation onto a fixed number of features.
 It is not trivial to map sequences of student actions that can be of an arbitrary length into a feature vector that needs to be of a predetermined dimension.
 Traditional feature vector classifiers,  like logistic regression or decision trees,  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data as input. 
-In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for every observation, which does not occur in slot and filler structures because  different slots may use different filler attributes.
+In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for every observation.
+This does not occur in slot and filler structures.
+For example,  in Table~\ref{tbl:log_example}, the \texttt{Move Object} slot requires $X$ and $Y$ fillers, while the \texttt{Use Gluumi} slot requires size fillers.
 
 In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 \algname allows modeling raw data in slot and filler structure.
@@ -179,9 +199,34 @@ Our experiments suggest that \algname can be used to predict student proficiency
 \section{SPRING Framework}
 
 \algname is designed in a way that can capture sequential decision making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge. Our data analysis pipeline receives raw data of student interactions with the different levels of educational game in slot and filler format along with their post-test results and creates a regression model for predicts the post-test score. 
-The framework consists of three main stages, 1) Discretization, 2) Sequence Modeling, and 3) Regression.
+Algorithm~\ref{alg:spring} describes the three main steps of our pipeline: discretization,  sequence modeling, and regression.
+\hl{Explain briefly in words what the whole thing does}.
+We now explain the different steps in detail.
+
+\begin{algorithm}
+\begin{algorithmic}[1]
+\Require: A log file $\mathbf{L_{g,s}}$ of slot-filler structure for each game $g$ and student $s$, a test $y_s$ for each student
+\State  $\langle \mathbf{x_{g,s}} , c_s \rangle \leftarrow$  Cluster\_students($\mathbf{L_{g,s}}, y_s$) \tikzmark{disctop}\tikzmark{right}\tikzmark{secright}
+\State $\mathbf{x_{g,s}} \leftarrow$  Discretize($\mathbf{L_{g,s}}$) \tikzmark{discbot}
+\For {each  game $g$}  \tikzmark{sectop}
+\For{each cluster  $c_s$}
+\State  $\theta_{g,c_s} \leftarrow$  Learn\_HMM($ \mathbf{x_{g,s}} $) 
+\EndFor
+\EndFor \tikzmark{secbot}
+\State Prediction $y_s$  from $x_{g,s}, \theta_{g, c_s}$ \tikzmark{regtop}
+\tikzmark{regbot}
+\end{algorithmic}
+\AddNote{disctop}{discbot}{right}{Discretization}
+\AddNote{sectop}{secbot}{right}{Sequence Modeling}
+\AddNote{regtop}{regbot}{right}{Regression}
+\caption{The SPRING algorithm\label{alg:spring}}
+\end{algorithm}
+
+
 
 \subsection{Discretization}
+\hl{Each section should refer to line numbers in the algorithm}
+\hl{Make sure the notation is consistent between algorithm and steps}
 This step of the data analysis pipeline receives time-stamped student interactions as input and generates a sequence of multinomial observations for each student in each game level.
 In order to transform the slot and filler observations into multinomial, we use DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
 DBSCAN was a good candidate in our implementation because student interaction with our educational game was dominated by moving objects in a 2 dimensional space.
@@ -246,13 +291,32 @@ For details on training methods please refer to \cite{fox2008hdp}.
 
 We used the output of the discretization step (2D array of multinomial observations) and trained two HDP-HMMs, one for high-performing and the other for low-performing students in each game level. The two models can be considered as a stochastic representation of the sequence of actions and we can use them to infer the likelihood of any arbitrary sequence as a feature for the regression step.
 
+\hl{For simplicity, here we assume only two clusters for students being in either  high or low performing groups.}
+\hl{Talk about Forward backward algorithm, and how you calculate theta!!!}
+
 \subsection{Regression}
 
-In this phase, we created a linear regression model using the likelihoods extracted from the previous phase. 
-For each student in each game level, we calculate the likelihoods of student sequence of actions based on the two HMMs and used the likelihood difference in each game level as a feature in a regression model for predicting the post-test scores.
-We tried different regularization methods (lasso and ridge regression) to find the optimum parameters for the regression model. 
+%In this phase, we created a linear regression model using the likelihoods extracted from the previous phase. 
+For each student $s$  in each game level $g$, we calculate the difference ($d_{s,g}$) of the likelihood of   belonging to high performing group minus the likelihood of of belonging to the low performing group.
+We calculate this likelihood by estimating the Forward-Backward probabilities  on each student sequence sequence of actions  based on the two HMMs parameter we estimated (whether the student is in the high performing group or in the low performing group):
+\begin{equation}
+d_{s,g} = \theta_{g, \text{high}} - \theta_{g, \text{low}}
+\end{equation}
 
-\hl{What are the features? Write equation}
+We use  a linear regression model for predicting the post-test scores:
+
+
+\begin{equation}
+\hat {y_s}(\beta) =   \sum_g \beta_g \cdot d_{s,g}  + \beta_0
+\end{equation}
+
+Here, $\beta_0$ is just an intercept for the  model.  
+We can optimize the parameters using \hl{what algorithm?}.
+We experimented with different regularization methods, but only report \hl{LASSO ??} \hl{cite} as it worked best in our preliminary comparisons:
+\begin{equation}
+\beta^* = \argmin_\beta || y_s - \hat{y_s}(\beta)  ||_2 + \lambda \cdot || \beta ||_1
+\end{equation}
+
 
 \section{Empirical Evaluation}
 
