@@ -207,8 +207,8 @@ We now explain the different steps in detail.
 \begin{algorithm}
 \begin{algorithmic}[1]
 \Require: A log file $\mathbf{L_{g,s}}$ of slot-filler structure for each game $g$ and student $s$, a test $y_s$ for each student
-\State  $\langle \mathbf{x_{g,s}} , c_s \rangle \leftarrow$  Cluster\_students($\mathbf{L_{g,s}}, y_s$) \tikzmark{disctop}\tikzmark{right}\tikzmark{secright}
-\State $\mathbf{x_{g,s}} \leftarrow$  Discretize($\mathbf{L_{g,s}}$) \tikzmark{discbot}
+\State  $\langle \mathbf{L'_{g,s}} , c_s \rangle \leftarrow$  Cluster\_students($\mathbf{L_{g,s}}, y_s$) \tikzmark{disctop}\tikzmark{right}\tikzmark{secright}
+\State $\mathbf{x_{g,s}} \leftarrow$  Discretize($\mathbf{L'_{g,s}}$) \tikzmark{discbot}
 \For {each  game $g$}  \tikzmark{sectop}
 \For{each cluster  $c_s$}
 \State  $\theta_{g,c_s} \leftarrow$  Learn\_HMM($ \mathbf{x_{g,s}} $) 
