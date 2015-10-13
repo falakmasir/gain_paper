@@ -164,7 +164,7 @@ In Table~\ref{tbl:log_example}, we show a simplified example of a real education
 The slots are discrete sets of events that are initiated by the leaner.
 Each slot may accept zero to multiple fillers. 
 Each filler represents a value of a property of the slot event.
-For example, a ``move" event  that represents the learner moved an object in the screen, may have an $x$ and $y$ fillers, to represent the target position in two-dimensional space.
+For example, a \texttt{Move Object} event  that represents the learner moved an object in the screen, may have an $x$ and $y$ coordinates as fillers to represent the target position in two-dimensional space.
 
 \begin{table}[tbh]
 	\begin{tabular}{@{}llll@{}}
@@ -188,9 +188,9 @@ Prior work~\cite{sequences} provides a   review of  the difference between featu
 A feature vector representation requires mapping an observation onto a fixed number of features.
 It is not trivial to map sequences of student actions that can be of an arbitrary length into a feature vector that needs to be of a predetermined dimension.
 Traditional feature vector classifiers,  like logistic regression or decision trees,  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data as input. 
-In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for every observation.
+In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for all of the observations.
 This does not occur in slot and filler structures.
-For example,  in Table~\ref{tbl:log_example}, the \texttt{Move Object} slot requires $X$ and $Y$ fillers, while the \texttt{Use Gluumi} slot requires size fillers.
+For example,  in Table~\ref{tbl:log_example}, the \texttt{Move Object} slot requires \texttt{x} and \texttt{y} fillers, while the \texttt{Use Gluumi} slot requires \texttt{size} fillers.
 
 In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 \algname allows modeling raw data in slot and filler structure.
@@ -228,34 +228,39 @@ We now explain the different steps in detail.
 \subsection{Discretization}
 \hl{Each section should refer to line numbers in the algorithm}
 \hl{Make sure the notation is consistent between algorithm and steps}
-This step of the data analysis pipeline receives time-stamped student interactions as input and generates a sequence of multinomial observations for each student in each game level.
-In order to transform the slot and filler observations into multinomial, we use DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
-DBSCAN was a good candidate in our implementation because student interaction with our educational game was dominated by moving objects in a 2 dimensional space.
-We tried different unsupervised and non-parametric methods, however, we ended up using DBSCAN because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori. 
+The discretization inputs time-ordered slot and fillers events and converts them into sequences of discrete observations.
+For this, we use a clustering algorithm called DBSCAN~\cite{ester1996density} on the fillers. 
+We use DBSCAN because it % student interaction with our educational game 
+%was dominated by moving objects in a 2 dimensional space.
+%We tried different unsupervised and non-parametric methods, however, we ended up using DBSCAN because it 
+can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori. 
 It is also robust to outliers which in our case can be interpreted as noisy movements that are not representative of learning competency. 
-We considered outliers as a separate cluster.
+We considered outliers as a separate cluster. \hl{?? ... explain}
 
-Figure~\ref{fig:figurecluster} shows the clusters detected for one of the game levels. 
-In this game level (screen shot on top of Figure~\ref{fig:figurecluster}), students had to move the ice cubes from the mountain tops onto the designated area. 
-As it is illustrated in Figure~\ref{fig:figurecluster} bottom, DBSCAN successfully identifies the designated regions as clusters and movement outside of them as outliers.
+Figure~\ref{fig:figurecluster} shows an example of using clustering to discretize \texttt{Move Object} slots, that have $x$ and $y$ coordinates as fillers.
+Figure~\ref{fig:screenshot} shows a screenshot of an educational game where students have to move ice cubes from the mountain top onto some designated areas.
+Figure~\ref{fig:figurecluster} shows a scatterplot of \hl{write... you need to explain this}.
+We colored the points according to the DBSCAN clustering.
+In this example, we have three clusters,  cluster one and two represent the \hl{the most common positions}, and cluster three are the the outliers.
 
 \begin{figure}[t]
  \centering
 \begin{subfigure}{.5\textwidth}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/glacier_screenshot.png}
-	\caption{\hl{write}}
+	\caption{\hl{write} \label{fig:screenshot}}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/glacier_positions.png}
-	\caption{\hl{write}}
+	\caption{\hl{write} \label{fig:clustering}}
 \end{subfigure}
 \caption{The clusters detected for game level 2, \textit {None Shall Pass!}, using DBSCAN method. We transform each movement action into corresponding cluster id during the discretization step.\label{fig:figurecluster}}
 \end{figure}
 
-After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor Classifier on the cluster labels in order to convert the sequence of slot and filler observations into a two dimensional array of multinomial observations.
+After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor Classifier on the cluster labels in order to convert the sequence of slot and filler observations into a two dimensional array of multinomial observations \hl{why?? DBSCAN already does this.  You need to document why you did this. explain each step and rationale so people can understand the intelligence of the approach. if not it will sound arbitrary}.
 We also used this classifier to transform any unseen sequence of interactions for our empirical evaluation phase. The details of the discretization phase is demonstrated in Procedure~\ref{alg:discretize}.
+\hl{Show an example input (slot-filler), and an example output (discrete sequence) to help illustrate the point}
 
 \begin{algorithm}
 	\begin{algorithmic}
