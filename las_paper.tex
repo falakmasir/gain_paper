@@ -16,6 +16,7 @@
 \usepackage{xspace}
 \usepackage{algorithm} 
 \usepackage{algpseudocode} 
+\usepackage{subcaption}
 \usepackage{booktabs}
 \def\algname{SPRING\xspace}
 \DeclareMathOperator*{\argmin}{argmin}
@@ -235,12 +236,22 @@ It is also robust to outliers which in our case can be interpreted as noisy move
 We considered outliers as a separate cluster.
 
 Figure~\ref{fig:figurecluster} shows the clusters detected for one of the game levels. 
-In this game level (screen shot on top of Figure~\ref{fig:figurecluster}), students had to move the ice cubes from the mountain tops onto the designated area. As it is illustrated in Figure~\ref{fig:figurecluster} bottom, DBSCAN successfully identifies the designated regions as clusters and movement outside of them as outliers.
+In this game level (screen shot on top of Figure~\ref{fig:figurecluster}), students had to move the ice cubes from the mountain tops onto the designated area. 
+As it is illustrated in Figure~\ref{fig:figurecluster} bottom, DBSCAN successfully identifies the designated regions as clusters and movement outside of them as outliers.
 
-\begin{figure}
+\begin{figure}[t]
+ \centering
+\begin{subfigure}{.5\textwidth}
 	\centering
-	\includegraphics[width=0.9\columnwidth]{figures/glacier}
-	\caption{The clusters detected for game level 2, \textit {None Shall Pass!}, using DBSCAN method. We transform each movement action into corresponding cluster id during the discretization step.}~\label{fig:figurecluster}
+	\includegraphics[width=0.9\columnwidth]{figures/glacier_screenshot.png}
+	\caption{\hl{write}}
+\end{subfigure}
+\begin{subfigure}{.5\textwidth}
+	\centering
+	\includegraphics[width=0.9\columnwidth]{figures/glacier_positions.png}
+	\caption{\hl{write}}
+\end{subfigure}
+\caption{The clusters detected for game level 2, \textit {None Shall Pass!}, using DBSCAN method. We transform each movement action into corresponding cluster id during the discretization step.\label{fig:figurecluster}}
 \end{figure}
 
 After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor Classifier on the cluster labels in order to convert the sequence of slot and filler observations into a two dimensional array of multinomial observations.
