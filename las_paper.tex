@@ -180,8 +180,6 @@ For example, a \texttt{Move Object} event  that represents the learner moved an 
 	\end{tabular}
 	\caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
 \end{table}
-\hl{I renamed X and Y for simplicity, hope that's ok} 
-% http://www.tablesgenerator.com/#
 
 Conventional machine learning algorithms cannot input slot and filler data, as they  work in  structures called \textit{feature vectors} or \textit{sequences}.
 Prior work~\cite{sequences} provides a   review of  the difference between feature vectors and sequences.
@@ -201,31 +199,39 @@ Our experiments suggest that \algname can be used to predict student proficiency
 
 \algname is designed in a way that can capture sequential decision making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge. Our data analysis pipeline receives raw data of student interactions with the different levels of educational game in slot and filler format along with their post-test results and creates a regression model for predicts the post-test score. 
 Algorithm~\ref{alg:spring} describes the three main steps of our pipeline: discretization,  sequence modeling, and regression.
-\hl{Explain briefly in words what the whole thing does}.
+The discretization step transform slot and filler observations into multinomial indicators that are used as evidence for learning.
+The sequence modeling step, learns a representation from data in form of a Hidden Markov Model for high- and low-performing students.
+The regression step, uses the likelihood of student sequences in each game level as a feature to predict the post-test results.
 We now explain the different steps in detail.
 
 \begin{algorithm}
 \begin{algorithmic}[1]
+<<<<<<< Updated upstream
 \Require: A log file $\mathbf{L_{g,s}}$ of slot-filler structure for each game $g$ and student $s$, a test $y_s$ for each student
 \State  $\langle \mathbf{L'_{g,s}} , c_s \rangle \leftarrow$  Cluster\_students($\mathbf{L_{g,s}}, y_s$) \tikzmark{disctop}\tikzmark{right}\tikzmark{secright}
 \State $\mathbf{x_{g,s}} \leftarrow$  Discretize($\mathbf{L'_{g,s}}$) \tikzmark{discbot}
+=======
+\Require: A log file $\mathbf{L_{g,s}}$ of slot-and-filler structure for each game $g$ and student $s$, a test $y_s$ for each student
+>>>>>>> Stashed changes
 \For {each  game $g$}  \tikzmark{sectop}
-\For{each cluster  $c_s$}
-\State  $\theta_{g,c_s} \leftarrow$  Learn\_HMM($ \mathbf{x_{g,s}} $) 
+\State $\mathbf{D_{g,s}} \leftarrow$  Discretize($\mathbf{L_{g,s}}$) \tikzmark{discbot}
+\State  $\langle \mathbf{High_{g}} , \mathbf{Low_{g}} \rangle \leftarrow$  Cluster\_Students($\mathbf{D_{g,s}}, y_s$) \tikzmark{disctop}\tikzmark{right}\tikzmark{secright}
+\State$\theta_{h,g} \leftarrow$  Learn\_HMM($ \mathbf{High_{g}} $)
+\State$\theta_{l,g} \leftarrow$  Learn\_HMM($ \mathbf{Low_{g}} $)
+\For{each sequence $d$ in $\mathbf{D_{g,s}}$}
+\State  $\phi_{g,s} \leftarrow$  Extract\_Features($d,\theta_{h,g}, \theta_{l,g}$) 
 \EndFor
 \EndFor \tikzmark{secbot}
-\State Prediction $y_s$  from $x_{g,s}, \theta_{g, c_s}$ \tikzmark{regtop}
+\State Predict $y_s$  from $\phi_{g,s}$ \tikzmark{regtop}
 \tikzmark{regbot}
 \end{algorithmic}
-\AddNote{disctop}{discbot}{right}{Discretization}
-\AddNote{sectop}{secbot}{right}{Sequence Modeling}
-\AddNote{regtop}{regbot}{right}{Regression}
 \caption{The SPRING algorithm\label{alg:spring}}
 \end{algorithm}
 
 
 
 \subsection{Discretization}
+<<<<<<< Updated upstream
 \hl{Each section should refer to line numbers in the algorithm}
 \hl{Make sure the notation is consistent between algorithm and steps}
 The discretization inputs time-ordered slot and fillers events and converts them into sequences of discrete observations.
@@ -234,6 +240,12 @@ We use DBSCAN because it % student interaction with our educational game
 %was dominated by moving objects in a 2 dimensional space.
 %We tried different unsupervised and non-parametric methods, however, we ended up using DBSCAN because it 
 can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori. 
+=======
+This step of the data analysis pipeline receives time-stamped student interactions as input and generates a sequence of multinomial observations for each student in each game level.
+In order to transform the slot and filler observations into multinomial, we use DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
+DBSCAN was a good candidate in our implementation because student interaction with our educational game was dominated by moving objects in a 2 dimensional space.
+We tried different unsupervised and non-parametric methods, however, we ended up using DBSCAN because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori. 
+>>>>>>> Stashed changes
 It is also robust to outliers which in our case can be interpreted as noisy movements that are not representative of learning competency. 
 We considered outliers as a separate cluster. \hl{?? ... explain}
 
@@ -264,6 +276,7 @@ We also used this classifier to transform any unseen sequence of interactions fo
 
 \begin{algorithm}
 	\begin{algorithmic}
+		\Require: Sequence of slot-and-filler observations in a game level
 		\Procedure{Discretize}{S}
 		\State{A = empty dictionary of slots and possible fillers}
 		\For{each sequence s in S }
@@ -296,24 +309,25 @@ We also used this classifier to transform any unseen sequence of interactions fo
 
 
 \subsection{Sequence Modeling}
-In the modeling phase, we hypothesized that high- and low-performing students have similar usage patterns that are representative of their sequential decision-making process. 
-Our model should be able to successfully capture this difference across different game levels and use it to predict post-test scores.
-Hidden Markov Models are good candidate for the task of unsupervised analysis of sequential data.
+Hidden Markov Models are good a candidate for the task of unsupervised analysis of sequential data.
+The use of hidden Markov models for clustering sequences appears to have first been mentioned in \cite{juang1985probabilistic} and subsequently used in the context of discovering subfamilies of protein sequences \cite{krogh1994hidden}. 
+However, it is important to note that the motivation for this problem comes from the goal of learning a \textit{descriptive} model from the data, rather than a \textit{predictive} model.
 Given the sequence of student actions, we aim to infer meaningful sequence of (latent) states, which describe the process that generated the actions, along with statistical patterns that can describe and distinguish those states.
-Since a large portion of student interactions are based on the logic of the game, we had no idea about the number of states and what they mean.
-As a result, we used the Hierarchical Diriclet Process HMM (HDP-HMM) \cite{fox2008hdp}, which is allows state spaces of unknown size to be learned from data. 
+
+Learning the ``best" value for number of clusters, $K$, is a difficult problem in practice even for non-dynamic models. 
+There has been considerable prior work on this problem that used penalized likelihoods \cite{rabiner1989hmm}, Monte-Carlo cross-validation \cite{smyth1996clustering}, and mixture of HMMs \cite{smyth1997clustering}. 
+However, for simplicity purposes, we hypothesized that high- and low-performing students have similar usage patterns that are representative of their sequential decision-making process. Instead of learning the number of clusters from data, we used the post-test scores to divide students into two groups and learned a HMM for each group.
+
+We used the Hierarchical Diriclet Process HMM (HDP-HMM) \cite{fox2008hdp}, which is allows state spaces of unknown size to be learned from data. 
 HDP-HMM defines a \textit{hierarchical Dirichlet process} prior on transition matrices over countably infinite state spaces and is able to make a principled choice of how many states it needs based on the complexity of its training data. 
 For details on training methods please refer to \cite{fox2008hdp}.
 
-We used the output of the discretization step (2D array of multinomial observations) and trained two HDP-HMMs, one for high-performing and the other for low-performing students in each game level. The two models can be considered as a stochastic representation of the sequence of actions and we can use them to infer the likelihood of any arbitrary sequence as a feature for the regression step.
-
-\hl{For simplicity, here we assume only two clusters for students being in either  high or low performing groups.}
-\hl{Talk about Forward backward algorithm, and how you calculate theta!!!}
+We used the output of the discretization step (2D array of multinomial observations) and trained two HDP-HMMs, one for high-performing and the other for low-performing students in each game level. The two models can be considered as a stochastic representation of the sequence of actions and we can use them to infer the likelihood of any arbitrary sequence as a feature for the regression step. 
 
 \subsection{Regression}
 
 %In this phase, we created a linear regression model using the likelihoods extracted from the previous phase. 
-For each student $s$  in each game level $g$, we calculate the difference ($d_{s,g}$) of the likelihood of   belonging to high performing group minus the likelihood of of belonging to the low performing group.
+For each student $s$  in each game level $g$, we calculate the difference ($d_{s,g}$) of the likelihood of belonging to high performing group minus the likelihood of of belonging to the low performing group.
 We calculate this likelihood by estimating the Forward-Backward probabilities  on each student sequence sequence of actions  based on the two HMMs parameter we estimated (whether the student is in the high performing group or in the low performing group):
 \begin{equation}
 d_{s,g} = \theta_{g, \text{high}} - \theta_{g, \text{low}}
@@ -321,14 +335,13 @@ d_{s,g} = \theta_{g, \text{high}} - \theta_{g, \text{low}}
 
 We use  a linear regression model for predicting the post-test scores:
 
-
 \begin{equation}
 \hat {y_s}(\beta) =   \sum_g \beta_g \cdot d_{s,g}  + \beta_0
 \end{equation}
 
 Here, $\beta_0$ is just an intercept for the  model.  
-We can optimize the parameters using \hl{what algorithm?}.
-We experimented with different regularization methods, but only report \hl{LASSO ??} \hl{cite} as it worked best in our preliminary comparisons:
+We optimized the parameters of the model using a 5-fold cross validation on our development set.
+We experimented with different regularization methods, but only report LASSO \cite{tibshirani1996regression} as it worked best in our preliminary comparisons:
 \begin{equation}
 \beta^* = \argmin_\beta || y_s - \hat{y_s}(\beta)  ||_2 + \lambda \cdot || \beta ||_1
 \end{equation}
@@ -360,9 +373,9 @@ Figure \ref{fig:frequency} shows the frequency of different events in each game 
 	\caption{Frequency of Events in Each Game Level}~\label{fig:frequency}
 \end{figure}
 
-We only used the trajectories of the students who participated in the post-test.
-In the case of multiple attempts in a game level, we only considered the trajectory from the first attempt.
-Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level.
+We only used the interactions of the students who participated in the post-test.
+In the case of multiple attempts in a game level, we only considered the interactions from the first attempt.
+Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level. 
 
 \begin{figure}
 	\centering
@@ -379,10 +392,10 @@ Finally, we test the regression model on the held-out set (\%20) and report the 
 
 
 \subsection{Results}
-In order to evaluate our regression model we decided to compare its performance agains two baselines: 1) A regression model that uses success and failure of students in each game level as feature \hl{Write equation}and 2) A regression model that uses the sequence lengths in each game level \hl{Write equation}. 
+In order to evaluate our regression model we decided to compare its performance agains two baselines: 1) A regression model that uses success and failure of students in each game level as feature and 2) A regression model that uses the sequence lengths in each game level \hl{Write equation}. 
 Our model was able to significantly outperform both baselines regarding to mean absolute error and root mean squared error. 
-Moreover, the $R^2$ correlation and Spearman $\rho$ of our predicted values with the true values was much higher than both baselines. Table \ref{tab:results} shows the results.
-
+Moreover, the $R^2$ correlation and Spearman $\rho$ of our predicted values with the true values was much higher than both baselines. 
+Table \ref{tab:results} shows the results. 
 
 \begin{table}[tbh]
 	\centering
@@ -396,18 +409,27 @@ Moreover, the $R^2$ correlation and Spearman $\rho$ of our predicted values with
 	\caption{The results of predicting post-test scores using three different feature sets}~\label{tab:results}	
 \end{table}
 
-	\hl{Show residual plot}
-	\hl{Show confidence intervals}
+Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and \%95 confidence interval.
+
+
+\begin{figure}[b]
+	\centering
+	\includegraphics[width=0.9\columnwidth]{figures/regression}
+	\caption{Results of predicting the post-test scores of the held-out set along with the regression line and \%95 interval.}~\label{fig:regression}
+\end{figure}
 	
 \subsection{Discussion}
+In this study we aimed to explore the effectiveness of data-driven methods for student modeling in educational games. 
+To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and showed improvement 
+
 Figure~\ref{fig:highvslow} shows the difference between two HMMs learned for one of the game levels.
 
-\begin{figure}
+\begin{figure*}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/high}
 	\includegraphics[width=0.9\columnwidth]{figures/low}
-	\caption{Two Hidden Markov Models learned from data in one of the game levels. The top HMM represents the high-performing students and the bottom one represents the low-performing ones.}~\label{fig:highvslow}
-\end{figure}
+	\caption{Two Hidden Markov Models learned from data in one of the game levels. The left HMM represents the high-performing students and the right one represents the low-performing ones.}~\label{fig:highvslow}
+\end{figure*}
 
 
 \section{Relation to Prior Work}
