@@ -206,13 +206,7 @@ We now explain the different steps in detail.
 
 \begin{algorithm}
 \begin{algorithmic}[1]
-<<<<<<< Updated upstream
-\Require: A log file $\mathbf{L_{g,s}}$ of slot-filler structure for each game $g$ and student $s$, a test $y_s$ for each student
-\State  $\langle \mathbf{L'_{g,s}} , c_s \rangle \leftarrow$  Cluster\_students($\mathbf{L_{g,s}}, y_s$) \tikzmark{disctop}\tikzmark{right}\tikzmark{secright}
-\State $\mathbf{x_{g,s}} \leftarrow$  Discretize($\mathbf{L'_{g,s}}$) \tikzmark{discbot}
-=======
 \Require: A log file $\mathbf{L_{g,s}}$ of slot-and-filler structure for each game $g$ and student $s$, a test $y_s$ for each student
->>>>>>> Stashed changes
 \For {each  game $g$}  \tikzmark{sectop}
 \State $\mathbf{D_{g,s}} \leftarrow$  Discretize($\mathbf{L_{g,s}}$) \tikzmark{discbot}
 \State  $\langle \mathbf{High_{g}} , \mathbf{Low_{g}} \rangle \leftarrow$  Cluster\_Students($\mathbf{D_{g,s}}, y_s$) \tikzmark{disctop}\tikzmark{right}\tikzmark{secright}
@@ -231,52 +225,47 @@ We now explain the different steps in detail.
 
 
 \subsection{Discretization}
-<<<<<<< Updated upstream
 \hl{Each section should refer to line numbers in the algorithm}
 \hl{Make sure the notation is consistent between algorithm and steps}
-The discretization inputs time-ordered slot and fillers events and converts them into sequences of discrete observations.
-For this, we use a clustering algorithm called DBSCAN~\cite{ester1996density} on the fillers. 
-We use DBSCAN because it % student interaction with our educational game 
-%was dominated by moving objects in a 2 dimensional space.
-%We tried different unsupervised and non-parametric methods, however, we ended up using DBSCAN because it 
-can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori. 
-=======
-This step of the data analysis pipeline receives time-stamped student interactions as input and generates a sequence of multinomial observations for each student in each game level.
+This step of the data analysis pipeline receives time-stamped student interactions in slot and fillers format as input and generates a sequence of multinomial observations for each student in each game level.
 In order to transform the slot and filler observations into multinomial, we use DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
 DBSCAN was a good candidate in our implementation because student interaction with our educational game was dominated by moving objects in a 2 dimensional space.
-We tried different unsupervised and non-parametric methods, however, we ended up using DBSCAN because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori. 
->>>>>>> Stashed changes
-It is also robust to outliers which in our case can be interpreted as noisy movements that are not representative of learning competency. 
-We considered outliers as a separate cluster. \hl{?? ... explain}
+We tried different unsupervised and non-parametric methods, however, we ended up using DBSCAN because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
+It is also robust to outliers which in our case can be ted as noisy movements that are not representative of learning competency. 
+We considered outliers as a separate cluster assuming that movements outside high density regions are either occure because of technical glitches in the gaming environent or misconceptions that are not common across multiple students. 
 
 Figure~\ref{fig:figurecluster} shows an example of using clustering to discretize \texttt{Move Object} slots, that have $x$ and $y$ coordinates as fillers.
-Figure~\ref{fig:screenshot} shows a screenshot of an educational game where students have to move ice cubes from the mountain top onto some designated areas.
-Figure~\ref{fig:figurecluster} shows a scatterplot of \hl{write... you need to explain this}.
+Figure~\ref{fig:screenshot} shows a screenshot of one of the game levels where students have to move ice cubes from the mountain top onto the two designated areas to prevent the yeti from crossing the wall.
+Figure~\ref{fig:clustering} shows a scatterplot of the $x$ and $y$ fillers of student movements along with clusters detected.
 We colored the points according to the DBSCAN clustering.
-In this example, we have three clusters,  cluster one and two represent the \hl{the most common positions}, and cluster three are the the outliers.
+In this example, we have three clusters,  cluster one and two (red and yellow respectively) that represent the frequent movements, and cluster zero (black) that represents outlier movements.
 
 \begin{figure}[t]
  \centering
 \begin{subfigure}{.5\textwidth}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/glacier_screenshot.png}
-	\caption{\hl{write} \label{fig:screenshot}}
+	\caption{Screenshot of game level 2, \textit {None Shall Pass!} \label{fig:screenshot}}
 \end{subfigure}
 \begin{subfigure}{.5\textwidth}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/glacier_positions.png}
-	\caption{\hl{write} \label{fig:clustering}}
+	\caption{Clusters detected among student movements in game level 2 \label{fig:clustering}}
 \end{subfigure}
 \caption{The clusters detected for game level 2, \textit {None Shall Pass!}, using DBSCAN method. We transform each movement action into corresponding cluster id during the discretization step.\label{fig:figurecluster}}
 \end{figure}
 
-After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor Classifier on the cluster labels in order to convert the sequence of slot and filler observations into a two dimensional array of multinomial observations \hl{why?? DBSCAN already does this.  You need to document why you did this. explain each step and rationale so people can understand the intelligence of the approach. if not it will sound arbitrary}.
-We also used this classifier to transform any unseen sequence of interactions for our empirical evaluation phase. The details of the discretization phase is demonstrated in Procedure~\ref{alg:discretize}.
+After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor (K-NN) Classifier on the fillers and cluster labels. 
+Tha main reason for training the classifier was that the default implementation of DBSCAN only returns cluster labels for the points in its dataset. 
+However, our discretization phase should be able to transform any unseen fillers into cluster label. 
+K-NN classifier was a good candidate for this phase because both K-NN and DBSCAN use euclidean distance as a metric to evaluate the distance between the points. 
+We used this classifier to  extract the cluster label for any  filler and we use the concatanation of slot and cluster labels as a multinomial observation in the sequence modeling phase.
+The details of the discretization phase is demonstrated in Procedure~\ref{alg:discretize}.
 \hl{Show an example input (slot-filler), and an example output (discrete sequence) to help illustrate the point}
 
 \begin{algorithm}
-	\begin{algorithmic}
-		\Require: Sequence of slot-and-filler observations in a game level
+	\begin{algorithmic}[1]
+		\Require: $S_g$, Sequence of slot-and-filler observations in game level $g$
 		\Procedure{Discretize}{S}
 		\State{A = empty dictionary of slots and possible fillers}
 		\For{each sequence s in S }
@@ -289,14 +278,13 @@ We also used this classifier to transform any unseen sequence of interactions fo
 		\State
 		\For{each slot and fillers tuple in A}
 		\State{clustersIDs = DBSCAN(a.fillers)}
-		\State{C[a.slot] = K-NN classifier on fillers and clusterIDs}
+		\State{$C_s$ = K-NN classifier on fillers and clusterIDs}
 		\EndFor
 		\State
 		\State{D = [][]\textit{ --2D array of multinomial observations}}
-		\For{each sequence s in S}
-		\State{P[i] = s.post-test}
-		\For{each action a in s}
-		\State{D[i,j] = C[a.slot].predict(filler)}
+		\For{each sequence $seq$ in $S$}
+		\For{each slot and filler tuple $\langle s, f \rangle $ in $seq$}
+		\State{$D_{i,j}$ = $C_s$.predict($f$)}
 		\EndFor
 		\EndFor
 		\State \Return{D}
@@ -392,7 +380,7 @@ Finally, we test the regression model on the held-out set (\%20) and report the 
 
 
 \subsection{Results}
-In order to evaluate our regression model we decided to compare its performance agains two baselines: 1) A regression model that uses success and failure of students in each game level as feature and 2) A regression model that uses the sequence lengths in each game level \hl{Write equation}. 
+In order to evaluate our regression model we decided to compare its performance agains two baselines: 1) A regression model that uses success and failure of students in each game level as feature and 2) A regression model that uses the normalized sequence lengths in each game level. 
 Our model was able to significantly outperform both baselines regarding to mean absolute error and root mean squared error. 
 Moreover, the $R^2$ correlation and Spearman $\rho$ of our predicted values with the true values was much higher than both baselines. 
 Table \ref{tab:results} shows the results. 
@@ -412,7 +400,7 @@ Table \ref{tab:results} shows the results.
 Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and \%95 confidence interval.
 
 
-\begin{figure}[b]
+\begin{figure}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/regression}
 	\caption{Results of predicting the post-test scores of the held-out set along with the regression line and \%95 interval.}~\label{fig:regression}
@@ -420,17 +408,25 @@ Figure~\ref{fig:regression} shows the true values vs. predicted values using LAS
 	
 \subsection{Discussion}
 In this study we aimed to explore the effectiveness of data-driven methods for student modeling in educational games. 
-To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and showed improvement 
-
+To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and showed significant improvement over two  baselines based on intuition. 
+However, predicting post-test scores was not the only reason for designing the pipeline. 
+We were also seeking for a descriptive model that can give us insight into low-level patterns in student movements. 
+This was the main idea behind using HDP-HMMs in the sequence modeling phase and our hypothesis that high-performing and low-performing sudents have different sequential patterns. 
 Figure~\ref{fig:highvslow} shows the difference between two HMMs learned for one of the game levels.
 
-\begin{figure*}
+\begin{figure*}[t]
 	\centering
-	\includegraphics[width=0.9\columnwidth]{figures/high}
-	\includegraphics[width=0.9\columnwidth]{figures/low}
+	\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=0.9\columnwidth]{figures/high.png}
+		\caption{High Performing \label{fig:highhmm}}
+	\end{subfigure}\begin{subfigure}{.5\textwidth}
+		\centering
+		\includegraphics[width=0.9\columnwidth]{figures/low.png}
+		\caption{Low Performing \label{fig:lowhmm}}
+	\end{subfigure}
 	\caption{Two Hidden Markov Models learned from data in one of the game levels. The left HMM represents the high-performing students and the right one represents the low-performing ones.}~\label{fig:highvslow}
 \end{figure*}
-
 
 \section{Relation to Prior Work}
 In order to deal with such highly unstructured data, researchers often use carefully designed network structures (such as Bayesian Networks \cite{albrecht1998bayesian,shute2013stealth}) or game-specific heuristics and benchmarks generated by experts playing the game \cite{mandel2014offline,tastan2011learning}. However, this approach is extremely labor intensive and might fail to capture meaningful patterns in student exploratory habits within the game. Given these limitations, data-driven analysis of student interactions provides a powerful alternative that facilitates the discussions around what does and does not work in a particular educational game.
