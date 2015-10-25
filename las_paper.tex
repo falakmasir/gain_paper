@@ -91,7 +91,7 @@
   breaklinks=true,
 }
 
-% create a shortcut to typeset table headings
+% create a shortcut to typeset  headings
 % \newcommand\tabhead[1]{\small\textbf{#1}}
 
 % End of preamble. Here it comes the document.
@@ -399,6 +399,25 @@ Table \ref{tab:results} shows the results.
 
 Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and \%95 confidence interval.
 
+The regression model also provides us with an insight into how important each game level is in distinguishing between high- and low-performing students. Table \ref{tab:regrweights} shows the weights of each game level in the best perfoming model.
+
+\begin{table}[b]
+	\centering
+	\begin{tabular}{ll}
+		\hline
+		\textbf{Game Level} & \textbf{Weight} \\ \hline
+		You Kraken Me Up!   & 1.686                               \\
+		Skeeterz            & 1.059                               \\
+		Evil Monkeys        & 1.053                               \\
+		To the Bat Cave     & 0.855                               \\
+		None Shall Pass     & 0.417                               \\
+		...                 &                                    
+	\end{tabular}
+	\caption{Weights of each game level in the best performing model.}
+	\label{tab:regrweights}	
+\end{table}
+
+As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screenshot Figure~\ref{fig:figurekracken}), has the highest weight in the regression model. This can be interpreted as the difference between the sequence of student interactions in this game level has the highest factor in distinguishing between high- and low-performing students. 
 
 \begin{figure}
 	\centering
@@ -412,18 +431,27 @@ To demonstrate the effectiveness of our framework, we used features from it to p
 However, predicting post-test scores was not the only reason for designing the pipeline. 
 We were also seeking for a descriptive model that can give us insight into low-level patterns in student movements. 
 This was the main idea behind using HDP-HMMs in the sequence modeling phase and our hypothesis that high-performing and low-performing sudents have different sequential patterns. 
-Figure~\ref{fig:highvslow} shows the difference between two HMMs learned for one of the game levels.
 
+Figure~\ref{fig:highvslow} shows the difference between two HMMs learned for one of the game levels.
+In this game level in the initial state, students are presented with composite objects and they have to use the \texttt{Esploda} tool to convert them into single unit objects. 
+Then, they have to use the \texttt{Gluumi} tools to convert the single unit objects into composite objects that fit the designated area. 
+And finally, they have to move the composite object they have created into the designated area.
+For comparison purposes, we are showing a three state HMM for both high- and low-performing students and removed the edges that had the probability below 0.05. 
+Figure~\ref{fig:highhmm} represents the HMM for high-performing students. The three latent states, $S_{0-2}$ can be interpreted as sequential steps, that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{Move Combo\_{ClusterID}} untill they successfully finish the game.
+On the other hand, low-performing students (Figure~\ref{fig:lowhmm}) do not necessarily follow the expected path and the probability of moving object into the outlier clusters (\texttt{Move Object\_0 and Move Combo\_0}) is also higher in each state for low-performing students.
+
+
+% I CANNOT MOVE THIS FIGURE TO PAGE 6!!!!!
 \begin{figure*}[t]
 	\centering
 	\begin{subfigure}{.5\textwidth}
 		\centering
 		\includegraphics[width=0.9\columnwidth]{figures/high.png}
-		\caption{High Performing \label{fig:highhmm}}
+		\caption{High Performing~\label{fig:highhmm}}
 	\end{subfigure}\begin{subfigure}{.5\textwidth}
 		\centering
 		\includegraphics[width=0.9\columnwidth]{figures/low.png}
-		\caption{Low Performing \label{fig:lowhmm}}
+		\caption{Low Performing~\label{fig:lowhmm}}
 	\end{subfigure}
 	\caption{Two Hidden Markov Models learned from data in one of the game levels. The left HMM represents the high-performing students and the right one represents the low-performing ones.}~\label{fig:highvslow}
 \end{figure*}
@@ -444,6 +472,16 @@ Shute et al. \cite{shute2013stealth} studied the effect of ECD design on student
 \textit {Refraction} is another educational game for learning about fractions by splitting laser beams into fractional amounts to target spaceships by avoiding asteroids. Liu et al. \cite{liu2013predicting}, created an ensemble algorithm that combines elements of Markov models, player heuristic search, and collaborative filtering techniques with state-space clustering in order to predict player movements on last game-level based on the history of movements in previous game levels. Lee et al. \cite{lee2014learning} extended the former framework by building state-action graph and using feature selection techniques to reduce the number of features for each state. To ensure extensibility, they also tested the framework on another game \textit {DragonBox} and reported improvement over a Markov predictor.
 
 \section{Conclusion}
+Modeling student behavior in open-ended environments such as educational games is an interesting and complex problem. Particulary data-driven models, can be valuable tools for game designers, educators, and researchers for analyzing how students learn different skills by using their systems.
+In this paper, we presented a data analysis framework that is able to learn a model from game activity logs that is predictive of student proficiency with minimum reliance on expert knowledge about the game environment. 
+One of the key drawbacks of model-free methods is that their results are difficult to interpret. 
+However, the discretization process along with the use of HDP-HMM, makes our model human readable and can give us insight into how student interact with each game level.
+Moreover, the parameters of the regression model provides a good intuition about the importance of each game level and its influence in distinguishing between high- and low-performing students.
+
+There are many possible directions for future work. On a lower level we can integrate the discretization and sequence modeling step by designing a new type of Hidden Markov Model that accepts slot and filler sequences as input (work in progress). On a higher level, instead of dividing students into two groups (high- and low-performing), we can use the new type of HMM in order to cluster students into more groups that might be  more representative of different approaches students follow in order to solve each game level. We can also replace our regression model with a more powerfull ensemble method that considers different subskills in order to integrate features of each game levels in order to predict the post-test scores.
+
+We only used data from \textit{Alice in AreaLand} in order to evaluate our model. However, the model is designed in a way that can model sequence of student actions in other similar gaming environments that use slot-and-filler structures in order to log student interactions with the system. Finally, using our framework we will be able to build a model that detects incorrect strategies or common misconception that can be used in a dynamic hinting system in order to increase player engagement and learning. 
+
 \hl{Limitation, we don't compare to Valerie Schultz}
 
 \hl{Limitation, we don't control for game ability like Valrerie does}
