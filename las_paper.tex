@@ -207,21 +207,21 @@ The sequence modeling step, learns a representation from data in form of a Hidde
 The regression step, uses the likelihood of student sequences in each game level as a feature to predict the post-test results.
 We now explain the different steps in detail.
 
-\begin{algorithm}
+\begin{algorithm}[ht]
 \begin{algorithmic}[1]
 \Require: A log file $\mathbf{L_{g,s,t}}$ of slot-and-filler structure for each game $g$ and student $s$ (indexed by time $t$), and results from a student assessment $y_s$.
 \For {each  game $g$}  \tikzmark{disctop}
 	\For {each slot $z$}
-		\State $\mathbf{D_{g,s,t}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s,t}}, z$) \tikzmark{right}
+		\State $\mathbf{D_{g,s,t}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s,t}}, z$) 
 	\EndFor 
 	\State  $\langle s, c \rangle \leftarrow$  Cluster\_Students($y_s$)  \tikzmark{discbot}
-	\For {each cluster $c$} \tikzmark{seqmodtop}
+	\For {each student performance group $c$} \tikzmark{seqmodtop} \tikzmark{right}
 		\State  $\mathbf{D_c} \leftarrow \mathbf{D_{g,s,t}}$ where $s \in \langle s, c \rangle$  
 		\State$\theta_{g, c} \leftarrow$  Learn\_HMM($\mathbf{D_c}$) 
 	\EndFor\tikzmark{seqmodbot}
 \EndFor 
 \For{each sequence $d$ in $\mathbf{D_{g,s}}$}  \tikzmark{regtop}
-	\State  $\phi_{g,s} \leftarrow$  Extract\_Features($d,\theta_{h,g}, \theta_{l,g}$)  
+	\State  $\phi_{g,s} \leftarrow$  Extract\_Features($d,\theta_{g,c}$)  
 \EndFor
 \State Learn a model that predicts $y_s$  from $\phi_{g,s}$ 
 \tikzmark{regbot}
@@ -241,60 +241,8 @@ and the student performance (\S~\ref{sec:student_disc}).
 
 \subsubsection{Slot-Filler Discretization}
 \label{sec:filler_disc}
-This step of the data analysis pipeline receives time-ordered student interactions in slot and filler format as input.
-% and generates a sequence of multinomial observations for each student in each game level.
-We give an example of  how to transform the slot and filler observations into a discrete (multinomial) observations appropriate for sequence modeling.
-Consider the \texttt{Move Object} slot from Table~\ref{tbl:log_example}.
-We wish to transform the different possible fillers into discrete units.
-Figure~\ref{fig:screenshot} shows a screenshot of a minigame that generates  \texttt{Move Object} slots.
-The purpose of this game is for learners  to move ice cubes from the mountain top onto the two designated areas to prevent the Yeti from crossing the wall.
-In Figure~\ref{fig:clustering} shows a scatterplot of the $x$ and $y$ fillers aggregating across \hl{50?} students.
 
-\begin{figure}[ht]
- \centering
-\begin{subfigure}[t]{.5\textwidth}
-	\centering
-	\includegraphics[width=0.9\columnwidth]{figures/glacier_screenshot.png}
-	\caption{Screenshot of game level 2, \textit {None Shall Pass!} \label{fig:screenshot}}
-\end{subfigure}
-\begin{subfigure}[t]{.5\textwidth}
-	\centering
-	\includegraphics[width=0.9\columnwidth]{figures/glacier_positions.png}
-	\caption{Clusters found using DBSCAN method. We transform each movement action into corresponding cluster id during the discretization step. \label{fig:clustering}}
-\end{subfigure}
-\caption{Analysis of the  \texttt{Move Object} slots and fillers from the \textit{None Shall Pass!} mini game\label{fig:figurecluster}}
-\end{figure}
-
-In order to transform the slot and filler observations into discrete events, we use a clustering algorithm for the fillers of each slot.
-For example, in Figure~\ref{fig:clustering},% we highlight the points that belong to two clusters for the $x$ and $y$ fillers.
-we have three clusters,  cluster one and two (red and yellow respectively) that represent frequent movements, and cluster zero (black) that represents ``outlier'' movements.
-%In this figure, we do not highlight a third cluster that we call ``outliers'', for  movements outside high density regions.
-We hypothesize that the outlier group is a result of either technical glitches in the gaming environment or misconceptions.
-To build discrete events we use the  concatenation of slot and cluster labels as a  observations in the sequence modeling phase.
-For example, instead of modeling from an infinite  domain like ``\texttt{Move Object $\langle x:363, y:83 \rangle$}",
-we use a number of discrete observations like ``\texttt{Move Object Cluster 1}".
-
-% shows a scatterplot of the $x$ and $y$ fillers aggregating across \hl{50xxxx} students.
-%on the fillers DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
-%It is also robust to outliers which in our case can be ted as noisy movements that are not representative of learning competency. 
-%We colored the points according to the DBSCAN clustering.
-The specific clustering algorithm we used  for learning a SPRING model is  called DBSCAN~\cite{ester1996density}.
-In preliminary experiments we tried other  unsupervised methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
-
-%After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor (K-NN) classifier on the fillers and cluster labels. 
-
-Clustering algorithms, like DBSCAN, often can only discretize observations in the training dataset, and would not generalize to unseen fillers.
-To work around this limitation, we build the capability of transforming any  filler into a cluster label. 
-Doing this with a K-Nearest neighbor (K-NN) classifier is appealing because it also uses an euclidean distance function.
-We use the training data to learn to predict a cluster label using the fillers as predictors.
-The details of the discretization phase is demonstrated in Procedure~\ref{alg:discretize}.
-\hl{Show an example input (slot-filler), and an example output (discrete sequence) to help illustrate the point}
-
-
-
-
-
-\begin{algorithm}
+\begin{algorithm}[ht]
 	\begin{algorithmic}[1]
 		\Require: $L_{g,s,t}$, Sequence of slot-and-filler observations in game level $g$ and student $s$, slot $t$
 		\Procedure{Discretize\_Fillers}{$\mathbf{L_{g,s,t}}, z, g$}
@@ -321,19 +269,88 @@ The details of the discretization phase is demonstrated in Procedure~\ref{alg:di
 	\caption{The Discretization Step of \algname \label{alg:discretize}}
 \end{algorithm}
 
+
+Algorithm~\ref{alg:discretize} describes the algorithm we use to discretize fillers.
+ Its input is time-ordered student interactions in slot-and-filler format for a single slot $z$ and game $g$.
+% and generates a sequence of multinomial observations for each student in each game level.
+We explain this algorithm with an example.
+Its purpose is to transform the slot and filler observations into a discrete (multinomial) observations appropriate for sequence modeling.
+Consider the \texttt{Move Object} slot from Table~\ref{tbl:log_example}.
+We wish to transform the different possible fillers into discrete units.
+Figure~\ref{fig:screenshot} shows a screenshot of a minigame that generates  \texttt{Move Object} slots.
+The purpose of this game is for learners  to move ice cubes from the mountain top onto the two designated areas to prevent the Yeti from crossing the wall.
+In Figure~\ref{fig:clustering} shows a scatterplot of the $x$ and $y$ fillers aggregating across \hl{50?} students.
+
+\begin{figure}[ht]
+ \centering
+\begin{subfigure}[t]{.5\textwidth}
+	\centering
+	\includegraphics[width=0.9\columnwidth]{figures/glacier_screenshot.png}
+	\caption{Screenshot of game level 2, \textit {None Shall Pass!} \label{fig:screenshot}}
+\end{subfigure}
+\begin{subfigure}[t]{.5\textwidth}
+	\centering
+	\includegraphics[width=0.9\columnwidth]{figures/glacier_positions.png}
+	\caption{Clusters found using DBSCAN method. We transform each movement action into corresponding cluster id during the discretization step. \label{fig:clustering}}
+\end{subfigure}
+\caption{Analysis of the  \texttt{Move Object} slots and fillers from the \textit{None Shall Pass!} mini game\label{fig:figurecluster}}
+\end{figure}
+
+In order to transform the slot and filler observations into discrete events, we use a clustering algorithm for the fillers of each slot.
+For example, in Figure~\ref{fig:clustering}, % we highlight the points that belong to two clusters for the $x$ and $y$ fillers.
+we have three clusters,  cluster one and two (red and yellow respectively) that represent frequent movements, and cluster zero (black) that represents ``outlier'' movements.
+%In this figure, we do not highlight a third cluster that we call ``outliers'', for  movements outside high density regions.
+We hypothesize that the outlier group is a result of either technical glitches in the gaming environment or misconceptions.
+To build discrete events we use the  concatenation of slot and cluster labels as a  observations in the sequence modeling phase.
+For example, instead of modeling from an infinite  domain like ``\texttt{Move Object $\langle x:363, y:83 \rangle$}",
+we use a number of discrete observations like ``\texttt{Move Object Cluster 1}".
+
+% shows a scatterplot of the $x$ and $y$ fillers aggregating across \hl{50xxxx} students.
+%on the fillers DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
+%It is also robust to outliers which in our case can be ted as noisy movements that are not representative of learning competency. 
+%We colored the points according to the DBSCAN clustering.
+The specific clustering algorithm we used  for learning a SPRING model is  called DBSCAN~\cite{ester1996density}.
+In preliminary experiments we tried other  unsupervised methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
+
+%After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor (K-NN) classifier on the fillers and cluster labels. 
+
+Clustering algorithms, like DBSCAN, often can only discretize observations in the training dataset, and would not generalize to unseen fillers.
+To work around this limitation, we build the capability of transforming any  filler into a cluster label. 
+Doing this with a K-Nearest neighbor (K-NN) classifier is appealing because it also uses an euclidean distance function.
+We use the training data to learn to predict a cluster label using the fillers as predictors.
+%The details of the discretization phase is demonstrated in Procedure~\ref{alg:discretize}.
+
+
 \subsubsection{Student performance clustering}
 \label{sec:student_disc}
-\hl{Describe this, please}
+
+\hl{Please fill this section}
+
+You do not describe how you group students in performance groups.
+Did you use the mean or  median?  Did you use IRT ability, or Did you use raw scores?
+Say that for simplicity, you only consider two groups: high performing students and low performing groups
+\hl{****}
 
 
 \subsection{Sequence Modeling}
-Hidden Markov Models are good a candidate for the task of unsupervised analysis of sequential data.
-The use of hidden Markov models for clustering sequences appears to have first been mentioned in \cite{juang1985probabilistic} and subsequently used in the context of discovering subfamilies of protein sequences \cite{krogh1994hidden}. 
-However, it is important to note that the motivation for our framework comes from the goal of learning a \textit{descriptive} model from the data, rather than a \textit{predictive} model.
+Once we have transformed the slot-and-filler structure into sequences of discrete observations, we can do sequence mining.
+\hl{Some comments:}
+* I don't understand the relationship with protein mining
+* This subsection can be strengthened. It does not explain the justification of \text{it} why you do HMMs on each cluster
+* We hypothesize that students in difference performance groups play the game differently.
+* We hypothesize that we can measure this by observing the specific playing pattern of students.
+Say that HMMs are an intuitive statistical tool for modeling this, because they may allow us to capture the student latent state, and that those latent states may have different behaviors
+
+\hl{**********}
+
+
+Hidden Markov Models are good a popular machine algorithm for unsupervised analysis of sequential data.
+%The use of hidden Markov models for clustering sequences appears to have first been mentioned in \cite{juang1985probabilistic} and subsequently used in the context of discovering subfamilies of protein sequences \cite{krogh1994hidden}. 
+However, it is important to note that the motivation for our framework comes from the goal of learning a descriptive model from the data, rather than a predictive model.
 Given the sequence of student actions, we aim to infer meaningful sequence of (latent) states, which describe the process that generated the actions, along with statistical patterns that can describe and distinguish those states.
 \hl{Moreover, we need states that represent meaningful patterns among students using a clustering method}
 
-Learning the ``best" value for number of clusters ($K$) is a difficult problem in practice even for non-dynamic models. 
+Learning the ``best" value for number of clusters ($K$)  \hl{number of clusters was done by DBscan, do you mean number of states?} is a difficult problem in practice even for non-dynamic models. 
 There has been considerable prior work on this problem that used penalized likelihoods \cite{rabiner1989hmm}, Monte-Carlo cross-validation \cite{smyth1996clustering}, and mixture of HMMs \cite{smyth1997clustering}. 
 However, for simplicity purposes, we hypothesized that high- and low-performing students have similar usage patterns that are representative of their sequential decision-making process. Instead of learning the number of clusters from data, we used the post-test scores to divide students into two groups and learned a HMM for each group.
 
@@ -343,7 +360,7 @@ For details on training methods please refer to \cite{fox2008hdp}.
 
 We used the output of the discretization step (2D array of multinomial observations) and trained two HDP-HMMs, one for high-performing and the other for low-performing students in each game level. The two models can be considered as a stochastic representation of the sequence of actions and we can use them to infer the likelihood of any arbitrary sequence as a feature for the regression step. 
 
-\subsection{Regression}
+\subsection{Feature Vector Modeling}
 
 %In this phase, we created a linear regression model using the likelihoods extracted from the previous phase. 
 For each student $s$  in each game level $g$, we calculate the difference ($d_{s,g}$) of the likelihood of belonging to high performing group minus the likelihood of of belonging to the low performing group.
@@ -415,6 +432,7 @@ In order to evaluate our regression model we decided to compare its performance 
 Our model was able to significantly outperform both baselines regarding to mean absolute error (MAE) and root mean squared error (RMSE). 
 Moreover, the $R^2$ correlation and Spearman $\rho$ of our predicted values with the true values was much higher than both baselines. 
 Table \ref{tab:results} shows the results. 
+\hl{Show your results of Spring with time (1+ state) and without}
 
 \begin{table}[tbh]
 	\centering
@@ -425,8 +443,9 @@ Table \ref{tab:results} shows the results.
 		Success / Failure                                                      & 0.01                                                     & 0.63                                                 & 3.22                                                          & 4.14 \\
 		\algname                                                       & 0.55                                                     & 0.82                                                 & 2.84                                                          & 3.35 \\ \bottomrule
 	\end{tabular}
-	\caption{The results of predicting post-test scores using three different feature sets}~\label{tab:results}	
+	\caption{The results of predicting post-test scores using three different feature sets \hl{Bold the best model.  Are differences statistical significant? Consider adding confidence intervals?} }~\label{tab:results}	
 \end{table}
+
 
 Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and \%95 confidence interval.
 
@@ -453,7 +472,7 @@ As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screen
 \begin{figure}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/regression.png}
-	\caption{Results of predicting the post-test scores of the held-out set along with the regression line and \%95 interval.}~\label{fig:regression}
+	\caption{Results of predicting the post-test scores of the held-out set along with the regression line and \%95 interval. \hl{Remove background of image}}~\label{fig:regression}
 \end{figure}
 	
 \subsection{Discussion}
@@ -470,8 +489,10 @@ In this game level in the initial state, students are presented with composite o
 Then, they have to use the \texttt{Gluumi} tools to convert the single unit objects into composite objects that fit the designated area. 
 And finally, they have to move the composite object they have created into the designated area.
 For comparison purposes, we are showing a three state HMM for both high- and low-performing students and removed the edges that had the probability below 0.05. 
-Figure~\ref{fig:highhmm} represents the HMM for high-performing students. The three latent states, $S_{0-2}$ can be interpreted as sequential steps, that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{Move Combo\_{ClusterID}} untill they successfully finish the game.
+Figure~\ref{fig:highhmm} represents the HMM for high-performing students. 
+The three latent states, $S_{0-2}$ can be interpreted as sequential steps, that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{Move Combo\_{ClusterID}} untill they successfully finish the game.
 On the other hand, low-performing students (Figure~\ref{fig:lowhmm}) do not necessarily follow the expected path and the probability of moving object into the outlier clusters (\texttt{Move Object\_0 and Move Combo\_0}) is also higher in each state for low-performing students.
+\hl{I really like this paragraph and figure, but I don't know how to interpret it.  I don't see anything that resembles move combo in your diagram?}
 
 
 % I CANNOT MOVE THIS FIGURE TO PAGE 6!!!!!
@@ -486,7 +507,7 @@ On the other hand, low-performing students (Figure~\ref{fig:lowhmm}) do not nece
 		\includegraphics[width=0.9\columnwidth]{figures/low.png}
 		\caption{Low Performing~\label{fig:lowhmm}}
 	\end{subfigure}
-	\caption{Two Hidden Markov Models learned from data in one of the game levels. The left HMM represents the high-performing students and the right one represents the low-performing ones.}~\label{fig:highvslow}
+	\caption{Learned transition models for one of the game levels}~\label{fig:highvslow}
 \end{figure*}
 
 \section{Relation to Prior Work}
