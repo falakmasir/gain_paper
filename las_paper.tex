@@ -15,7 +15,7 @@
 \newcommand{\hl}[1]{\colorbox{yellow}{#1}}
 \usepackage{xspace}
 \usepackage{algorithm} 
-\usepackage{algpseudocode} 
+\usepackage[noend]{algpseudocode} 
 \usepackage{subcaption}
 \usepackage{booktabs}
 \def\algname{SPRING\xspace}
@@ -209,20 +209,19 @@ We now explain the different steps in detail.
 
 \begin{algorithm}
 \begin{algorithmic}[1]
-\Require: A log file $\mathbf{L_{g,s}}$ of slot-and-filler structure for each game $g$ and student $s$, student assessment $y_s$ for each student
+\Require: A log file $\mathbf{L_{g,s,t}}$ of slot-and-filler structure for each game $g$ and student $s$ (indexed by time $t$), and results from a student assessment $y_s$.
 \For {each  game $g$}  \tikzmark{disctop}
-	\For {each slot}
-		\State $\mathbf{D'_{g,s}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s}}$)
-		\State $\mathbf{D_{g,s}} \leftarrow$  Predict\_Fillers($\mathbf{L_{g,s}}$))
+	\For {each slot $z$}
+		\State $\mathbf{D_{g,s,t}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s,t}}, z$) \tikzmark{right}
 	\EndFor 
 	\State  $\langle s, c \rangle \leftarrow$  Cluster\_Students($y_s$)  \tikzmark{discbot}
 	\For {each cluster $c$} \tikzmark{seqmodtop}
-		\State  $\mathbf{D}' \leftarrow \mathbf{D_{g,s}}$ where $s \in \langle s, c \rangle$  
-		\State$\theta_{g, c} \leftarrow$  Learn\_HMM($\mathbf{D'}$) 
+		\State  $\mathbf{D_c} \leftarrow \mathbf{D_{g,s,t}}$ where $s \in \langle s, c \rangle$  
+		\State$\theta_{g, c} \leftarrow$  Learn\_HMM($\mathbf{D_c}$) 
 	\EndFor\tikzmark{seqmodbot}
 \EndFor 
 \For{each sequence $d$ in $\mathbf{D_{g,s}}$}  \tikzmark{regtop}
-	\State  $\phi_{g,s} \leftarrow$  Extract\_Features($d,\theta_{h,g}, \theta_{l,g}$)  \tikzmark{right}
+	\State  $\phi_{g,s} \leftarrow$  Extract\_Features($d,\theta_{h,g}, \theta_{l,g}$)  
 \EndFor
 \State Learn a model that predicts $y_s$  from $\phi_{g,s}$ 
 \tikzmark{regbot}
@@ -275,20 +274,19 @@ To build discrete events we use the  concatenation of slot and cluster labels as
 For example, instead of modeling from an infinite  domain like ``\texttt{Move Object $\langle x:363, y:83 \rangle$}",
 we use a number of discrete observations like ``\texttt{Move Object Cluster 1}".
 
-% shows a scatterplot of the $x$ and $y$ fillers aggregating across \hl{50} students.
+% shows a scatterplot of the $x$ and $y$ fillers aggregating across \hl{50xxxx} students.
 %on the fillers DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
 %It is also robust to outliers which in our case can be ted as noisy movements that are not representative of learning competency. 
 %We colored the points according to the DBSCAN clustering.
-The specific clustering algorithm we used  for learning a SPRING model is  DBSCAN~\cite{ester1996density}.
-In preliminary experiments we tried other  unsupervised and non-parametric methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
+The specific clustering algorithm we used  for learning a SPRING model is  called DBSCAN~\cite{ester1996density}.
+In preliminary experiments we tried other  unsupervised methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
 
 %After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor (K-NN) classifier on the fillers and cluster labels. 
 
 Clustering algorithms, like DBSCAN, often can only discretize observations in the training dataset, and would not generalize to unseen fillers.
 To work around this limitation, we build the capability of transforming any  filler into a cluster label. 
-A K-Nearest neighbor (K-NN) classifier is a good candidate to do this, because
-both DBSCAN and KNN it also uses euclidean distance.
-For this,  we learn to predict a cluster label for any  filler.
+Doing this with a K-Nearest neighbor (K-NN) classifier is appealing because it also uses an euclidean distance function.
+We use the training data to learn to predict a cluster label using the fillers as predictors.
 The details of the discretization phase is demonstrated in Procedure~\ref{alg:discretize}.
 \hl{Show an example input (slot-filler), and an example output (discrete sequence) to help illustrate the point}
 
@@ -298,29 +296,25 @@ The details of the discretization phase is demonstrated in Procedure~\ref{alg:di
 
 \begin{algorithm}
 	\begin{algorithmic}[1]
-		\Require: $S_g$, Sequence of slot-and-filler observations in game level $g$
-		\Procedure{Discretize}{S}
-		\State{A = empty dictionary of slots and possible fillers}
-		\For{each sequence s in S }
-		\For{each action a in s}
-		\If{a.filler $\neq \varnothing$}
-		\State{A[a.slot].append(a.filler)}
-		\EndIf
-		\EndFor
-		\EndFor
+		\Require: $L_{g,s,t}$, Sequence of slot-and-filler observations in game level $g$ and student $s$, slot $t$
+		\Procedure{Discretize\_Fillers}{$\mathbf{L_{g,s,t}}, z, g$}
+		%\State \Comment Get filler data for a game $g$ and slot $z$
+		\State{$\mathbf{F_{s,t} } \leftarrow$  get\_fillers($\mathbf{L_{g',s,t}}$), where $g' = g$}
+		
+		\State{ $\langle \mathbf{F_{s,t}}$ , clustersIDs   $\rangle \leftarrow$ Cluster($\mathbf{F_{s,t}}$) } 
+		\State{model  $\leftarrow$ learn\_classifier(filler\_values, clustersIDs) }
+	
 		\State
-		\For{each slot and fillers tuple in A}
-		\State{clustersIDs = DBSCAN(a.fillers)}
-		\State{$C_s$ = K-NN classifier on fillers and clusterIDs}
+		\For{each student $s'$}	
+				\For{each time step $t'$}
+					\If {$z$ == slot($L_{g,s',t'}$)}
+						\State { $\hat f \leftarrow$  model.predict(filler($ L_{g,s',t'} $)) }
+						\State {$d  \leftarrow $ \text{concat}(z, $\hat f$) }
+						\State{$\mathbf{D_{g,s',t'}} \leftarrow  d$} 
+					\EndIf
+				\EndFor
 		\EndFor
-		\State
-		\State{D = [][]\textit{ --2D array of multinomial observations}}
-		\For{each sequence $seq$ in $S$}
-		\For{each slot and filler tuple $\langle s, f \rangle $ in $seq$}
-		\State{$D_{i,j}$ = $C_s$.predict($f$)}
-		\EndFor
-		\EndFor
-		\State \Return{D}
+		\State \Return{ $\mathbf{D}_{g,s,t}$ }
 		\EndProcedure
 		
 	\end{algorithmic}
