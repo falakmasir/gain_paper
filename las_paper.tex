@@ -209,15 +209,15 @@ We now explain the different steps in detail.
 
 \begin{algorithm}[ht]
 \begin{algorithmic}[1]
-\Require: A log file $\mathbf{L_{g,s,t}}$ of slot-and-filler structure for each game $g$ and student $s$ (indexed by time $t$), and results from a student assessment $y_s$.
+\Require: A log file $\mathbf{L_{g,s,t}}$ of slot-and-filler structure for each game $g$ and student $s$ (indexed by time $t$), and results from a student assessment $y_s$, \hl{number of performance clusters $K$, number of latent states $H$}.
 \For {each  game $g$}  \tikzmark{disctop}
 	\For {each slot $z$}
 		\State $\mathbf{D_{g,s,t}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s,t}}, z$) 
 	\EndFor 
-	\State  $\langle s, c \rangle \leftarrow$  Cluster\_Students($y_s$)  \tikzmark{discbot}
+	\State  $\langle s, c \rangle \leftarrow$  Cluster\_Students($y_s, K$)  \tikzmark{discbot}
 	\For {each student performance group $c$} \tikzmark{seqmodtop} \tikzmark{right}
 		\State  $\mathbf{D_c} \leftarrow \mathbf{D_{g,s,t}}$ where $s \in \langle s, c \rangle$  
-		\State$\theta_{g, c} \leftarrow$  Learn\_HMM($\mathbf{D_c}$) 
+		\State$\theta_{g, c} \leftarrow$  Learn\_HMM($\mathbf{D_c}, H$) 
 	\EndFor\tikzmark{seqmodbot}
 \EndFor 
 \For{each sequence $d$ in $\mathbf{D_{g,s}}$}  \tikzmark{regtop}
