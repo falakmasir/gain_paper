@@ -182,86 +182,122 @@ For example, a \texttt{Move Object} event  that represents the learner moved an 
 \end{table}
 
 Conventional machine learning algorithms cannot input slot and filler data, as they  work in  structures called \textit{feature vectors} or \textit{sequences}.
-Prior work~\cite{sequences} provides a   review of  the difference between feature vectors and sequences.
+Others ~\cite{sequences} have compared feature vectors and sequences in educational applications.
 A feature vector representation requires mapping an observation onto a fixed number of features.
-It is not trivial to map sequences of student actions that can be of an arbitrary length into a feature vector that needs to be of a predetermined dimension.
-Traditional feature vector classifiers,  like logistic regression or decision trees,  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data as input. 
-In contrast, machine learning algorithm that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for all of the observations.
+It is not obvious how to best map sequences of student actions that can be of an arbitrary length into a feature vector that needs to be of a predetermined dimension.
+Traditional feature vector classifiers (like logistic regression or decision trees)  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data as input. 
+In contrast, machine learning algorithms that allow sequential representations, like Hidden Markov Models (HMM), require a parametric model with the same number of dimensions for all of the observations.
 This does not occur in slot and filler structures.
-For example,  in Table~\ref{tbl:log_example}, the \texttt{Move Object} slot requires \texttt{x} and \texttt{y} fillers, while the \texttt{Use Gluumi} slot requires \texttt{size} fillers.
+For example,  in Table~\ref{tbl:log_example}, the \texttt{Move Object} slot requires \texttt{x} and \texttt{y} fillers, while the \texttt{Use Gluumi} slot requires only \texttt{size} fillers.
 
 In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 \algname allows modeling raw data in slot and filler structure.
 We demonstrate our approach on real student game playing data.
 Our experiments suggest that \algname can be used to predict student proficiency  without costly domain expertise.
 
-\section{SPRING Framework}
+\section{SPRING Algorithm}
 
 \algname is designed in a way that can capture sequential decision making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge. Our data analysis pipeline receives raw data of student interactions with the different levels of educational game in slot and filler format along with their post-test results and creates a regression model for predicts the post-test score. 
-Algorithm~\ref{alg:spring} describes the three main steps of our pipeline: discretization,  sequence modeling, and regression.
-The discretization step transform slot and filler observations into multinomial indicators that are used as evidence for learning.
-The sequence modeling step, learns a representation from data in form of a Hidden Markov Model for high- and low-performing students.
-The regression step, uses the likelihood of student sequences in each game level as a feature to predict the post-test results.
+Algorithm~\ref{alg:spring} describes the SPRING algorithm.
+Our formulation allows to aggregate evidence collected from multiple games.
+The two main steps of our pipeline are learning a sequential and feature vectors models.% and learning a,  sequence modeling, and regression.
+To learn the sequence model, we first transform the slot and filler observations into discrete (multinomial) indicators.% that are used as evidence for learning.
+Next, we cluster students according to their performance on an assessment, for example into high or low performing groups.
+We then learn a HMM per game and cluster.
+%The sequence modeling step, learns a representation from data in form of a Hidden Markov Model for high- and low-performing students.
+For the regression step, we build a regression model  that predicts the student grade by automatically extracting features from the HMMs.
+%The regression step, uses the likelihood of student sequences in each game level as a feature to predict the post-test results.
 We now explain the different steps in detail.
 
 \begin{algorithm}
 \begin{algorithmic}[1]
-\Require: A log file $\mathbf{L_{g,s}}$ of slot-and-filler structure for each game $g$ and student $s$, a test $y_s$ for each student
-\For {each  game $g$}  \tikzmark{sectop}
-\State $\mathbf{D_{g,s}} \leftarrow$  Discretize($\mathbf{L_{g,s}}$) \tikzmark{discbot}
-\State  $\langle \mathbf{High_{g}} , \mathbf{Low_{g}} \rangle \leftarrow$  Cluster\_Students($\mathbf{D_{g,s}}, y_s$) \tikzmark{disctop}\tikzmark{right}\tikzmark{secright}
-\State$\theta_{h,g} \leftarrow$  Learn\_HMM($ \mathbf{High_{g}} $)
-\State$\theta_{l,g} \leftarrow$  Learn\_HMM($ \mathbf{Low_{g}} $)
-\For{each sequence $d$ in $\mathbf{D_{g,s}}$}
-\State  $\phi_{g,s} \leftarrow$  Extract\_Features($d,\theta_{h,g}, \theta_{l,g}$) 
+\Require: A log file $\mathbf{L_{g,s}}$ of slot-and-filler structure for each game $g$ and student $s$, student assessment $y_s$ for each student
+\For {each  game $g$}  \tikzmark{disctop}
+	\For {each slot}
+		\State $\mathbf{D'_{g,s}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s}}$)
+		\State $\mathbf{D_{g,s}} \leftarrow$  Predict\_Fillers($\mathbf{L_{g,s}}$))
+	\EndFor 
+	\State  $\langle s, c \rangle \leftarrow$  Cluster\_Students($y_s$)  \tikzmark{discbot}
+	\For {each cluster $c$} \tikzmark{seqmodtop}
+		\State  $\mathbf{D}' \leftarrow \mathbf{D_{g,s}}$ where $s \in \langle s, c \rangle$  
+		\State$\theta_{g, c} \leftarrow$  Learn\_HMM($\mathbf{D'}$) 
+	\EndFor\tikzmark{seqmodbot}
+\EndFor 
+\For{each sequence $d$ in $\mathbf{D_{g,s}}$}  \tikzmark{regtop}
+	\State  $\phi_{g,s} \leftarrow$  Extract\_Features($d,\theta_{h,g}, \theta_{l,g}$)  \tikzmark{right}
 \EndFor
-\EndFor \tikzmark{secbot}
-\State Predict $y_s$  from $\phi_{g,s}$ \tikzmark{regtop}
+\State Learn a model that predicts $y_s$  from $\phi_{g,s}$ 
 \tikzmark{regbot}
 \end{algorithmic}
+\AddNote{disctop}{discbot}{right}{Discretization}
+\AddNote{seqmodtop}{seqmodbot}{right}{Sequence model}
+\AddNote{regtop}{regbot}{right}{Feature vector model}
 \caption{The SPRING algorithm\label{alg:spring}}
 \end{algorithm}
 
 
 
 \subsection{Discretization}
-\hl{Each section should refer to line numbers in the algorithm}
-\hl{Make sure the notation is consistent between algorithm and steps}
-This step of the data analysis pipeline receives time-stamped student interactions in slot and fillers format as input and generates a sequence of multinomial observations for each student in each game level.
-In order to transform the slot and filler observations into multinomial, we use DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
-DBSCAN was a good candidate in our implementation because student interaction with our educational game was dominated by moving objects in a 2 dimensional space.
-We tried different unsupervised and non-parametric methods, however, we ended up using DBSCAN because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
-It is also robust to outliers which in our case can be ted as noisy movements that are not representative of learning competency. 
-We considered outliers as a separate cluster assuming that movements outside high density regions are either occure because of technical glitches in the gaming environent or misconceptions that are not common across multiple students. 
+We now describe how we discretize
+the slot and fillers,  (\S~\ref{sec:filler_disc}) 
+and the student performance (\S~\ref{sec:student_disc}).
 
-Figure~\ref{fig:figurecluster} shows an example of using clustering to discretize \texttt{Move Object} slots, that have $x$ and $y$ coordinates as fillers.
-Figure~\ref{fig:screenshot} shows a screenshot of one of the game levels where students have to move ice cubes from the mountain top onto the two designated areas to prevent the yeti from crossing the wall.
-Figure~\ref{fig:clustering} shows a scatterplot of the $x$ and $y$ fillers of student movements along with clusters detected.
-We colored the points according to the DBSCAN clustering.
-In this example, we have three clusters,  cluster one and two (red and yellow respectively) that represent the frequent movements, and cluster zero (black) that represents outlier movements.
+\subsubsection{Slot-Filler Discretization}
+\label{sec:filler_disc}
+This step of the data analysis pipeline receives time-ordered student interactions in slot and filler format as input.
+% and generates a sequence of multinomial observations for each student in each game level.
+We give an example of  how to transform the slot and filler observations into a discrete (multinomial) observations appropriate for sequence modeling.
+Consider the \texttt{Move Object} slot from Table~\ref{tbl:log_example}.
+We wish to transform the different possible fillers into discrete units.
+Figure~\ref{fig:screenshot} shows a screenshot of a minigame that generates  \texttt{Move Object} slots.
+The purpose of this game is for learners  to move ice cubes from the mountain top onto the two designated areas to prevent the Yeti from crossing the wall.
+In Figure~\ref{fig:clustering} shows a scatterplot of the $x$ and $y$ fillers aggregating across \hl{50?} students.
 
-\begin{figure}[t]
+\begin{figure}[ht]
  \centering
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}[t]{.5\textwidth}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/glacier_screenshot.png}
 	\caption{Screenshot of game level 2, \textit {None Shall Pass!} \label{fig:screenshot}}
 \end{subfigure}
-\begin{subfigure}{.5\textwidth}
+\begin{subfigure}[t]{.5\textwidth}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/glacier_positions.png}
-	\caption{Clusters detected among student movements in game level 2 \label{fig:clustering}}
+	\caption{Clusters found using DBSCAN method. We transform each movement action into corresponding cluster id during the discretization step. \label{fig:clustering}}
 \end{subfigure}
-\caption{The clusters detected for game level 2, \textit {None Shall Pass!}, using DBSCAN method. We transform each movement action into corresponding cluster id during the discretization step.\label{fig:figurecluster}}
+\caption{Analysis of the  \texttt{Move Object} slots and fillers from the \textit{None Shall Pass!} mini game\label{fig:figurecluster}}
 \end{figure}
 
-After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor (K-NN) Classifier on the fillers and cluster labels. 
-Tha main reason for training the classifier was that the default implementation of DBSCAN only returns cluster labels for the points in its dataset. 
-However, our discretization phase should be able to transform any unseen fillers into cluster label. 
-K-NN classifier was a good candidate for this phase because both K-NN and DBSCAN use euclidean distance as a metric to evaluate the distance between the points. 
-We used this classifier to  extract the cluster label for any  filler and we use the concatanation of slot and cluster labels as a multinomial observation in the sequence modeling phase.
+
+In order to transform the slot and filler observations into discrete events, we use a clustering algorithm for the fillers of each slot.
+For example, in Figure~\ref{fig:clustering},% we highlight the points that belong to two clusters for the $x$ and $y$ fillers.
+we have three clusters,  cluster one and two (red and yellow respectively) that represent frequent movements, and cluster zero (black) that represents ``outlier'' movements.
+%In this figure, we do not highlight a third cluster that we call ``outliers'', for  movements outside high density regions.
+We hypothesize that the outlier group is a result of either technical glitches in the gaming environment or misconceptions.
+To build discrete events we use the  concatenation of slot and cluster labels as a  observations in the sequence modeling phase.
+For example, instead of modeling from an infinite  domain like ``\texttt{Move Object $\langle x:363, y:83 \rangle$}",
+we use a number of discrete observations like ``\texttt{Move Object Cluster 1}".
+
+% shows a scatterplot of the $x$ and $y$ fillers aggregating across \hl{50} students.
+%on the fillers DBSCAN clustering algorithm \cite{ester1996density} on the filler dimensions. 
+%It is also robust to outliers which in our case can be ted as noisy movements that are not representative of learning competency. 
+%We colored the points according to the DBSCAN clustering.
+The specific clustering algorithm we used  for learning a SPRING model is  DBSCAN~\cite{ester1996density}.
+In preliminary experiments we tried other  unsupervised and non-parametric methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
+
+%After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor (K-NN) classifier on the fillers and cluster labels. 
+
+Clustering algorithms, like DBSCAN, often can only discretize observations in the training dataset, and would not generalize to unseen fillers.
+To work around this limitation, we build the capability of transforming any  fillers into a cluster label. 
+A K-Nearest neighbor (K-NN) classifier is a good candidate to do this, because
+both DBSCAN and KNN it also uses euclidean distance.
+For this,  we learn to predict a cluster label for any  filler.
 The details of the discretization phase is demonstrated in Procedure~\ref{alg:discretize}.
 \hl{Show an example input (slot-filler), and an example output (discrete sequence) to help illustrate the point}
+
+
+
+
 
 \begin{algorithm}
 	\begin{algorithmic}[1]
@@ -294,6 +330,9 @@ The details of the discretization phase is demonstrated in Procedure~\ref{alg:di
 	\caption{The Discretization Step of \algname \label{alg:discretize}}
 \end{algorithm}
 
+\subsubsection{Student performance clustering}
+\label{sec:student_disc}
+\hl{Describe this, please}
 
 
 \subsection{Sequence Modeling}
@@ -357,7 +396,7 @@ Figure \ref{fig:frequency} shows the frequency of different events in each game 
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.9\columnwidth]{figures/frequency}
+	\includegraphics[width=0.9\columnwidth]{figures/frequency.png}
 	\caption{Frequency of Events in Each Game Level}~\label{fig:frequency}
 \end{figure}
 
@@ -421,7 +460,7 @@ As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screen
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.9\columnwidth]{figures/regression}
+	\includegraphics[width=0.9\columnwidth]{figures/regression.png}
 	\caption{Results of predicting the post-test scores of the held-out set along with the regression line and \%95 interval.}~\label{fig:regression}
 \end{figure}
 	
