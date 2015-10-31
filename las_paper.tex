@@ -21,6 +21,20 @@
 \def\algname{SPRING\xspace}
 \DeclareMathOperator*{\argmin}{argmin}
 \DeclareMathOperator*{\argmax}{argmax}
+\usepackage{wrapfig, subcaption}
+
+\usepackage{adjustbox}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning} 
+\tikzset{
+	%Define standard arrow tip
+	>=stealth',
+	% Define arrow style
+	pil/.style={
+		<-,
+		shorten <=0pt,
+		shorten >=0pt,}
+}
 
 \floatname{algorithm}{Procedure}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
@@ -100,23 +114,33 @@
 \title{\plaintitle}
 
 \numberofauthors{4}
+%\author
+%{%
+%  \alignauthor{\mbox{\hspace{-1.85em}Mohammad H. Falakmasir$^{\star, \#} $\;\;\; Jos\'{e} P. Gonz\'{a}lez-Brenes$^\star$ \;\;\; Geoffrey J. Gordon$^\S$ \;\;\; Kristen E. DiCerbo$^\star$}\\
+%    \affaddr{$^\star$School Research}\\
+%    \affaddr{Pearson}\\
+%    \email{\{jose.gonzalez-brenes, kristen.dicerbo\}@pearson.com }\\
+%    }
+%  \alignauthor{\vphantom{Mohamamad Jose}
+%    \affaddr{$^\#$Intelligent Systems Program} \\
+%    \affaddr{University of Pittsburgh}\\
+%    \email{falakmasir@pitt.edu}\\
+%  }
+%  \alignauthor{\vphantom{Mohamamad Jose}
+%  	\affaddr{$^\S$Machine Learning}\\
+%	\affaddr{Carnegie Mellon University} 
+%  	\email{ggordon@cs.cmu.edu}\\
+%  }
+%}
+
+
 \author
 {%
-  \alignauthor{\mbox{\hspace{-1.85em}Mohammad H. Falakmasir$^{\star, \#} $\;\;\; Jos\'{e} P. Gonz\'{a}lez-Brenes$^\star$ \;\;\; Geoffrey J. Gordon$^\S$ \;\;\; Kristen E. DiCerbo$^\star$}\\
-    \affaddr{$^\star$School Research}\\
-    \affaddr{Pearson}\\
-    \email{\{jose.gonzalez-brenes, kristen.dicerbo\}@pearson.com }\\
-    }
-  \alignauthor{\vphantom{Mohamamad Jose}
-    \affaddr{$^\#$Intelligent Systems Program} \\
-    \affaddr{University of Pittsburgh}\\
-    \email{falakmasir@pitt.edu}\\
-  }
-  \alignauthor{\vphantom{Mohamamad Jose}
-  	\affaddr{$^\S$Machine Learning}\\
-	\affaddr{Carnegie Mellon University} 
-  	\email{ggordon@cs.cmu.edu}\\
-  }
+	\alignauthor{X\\
+		\affaddr{X}\\
+		\affaddr{X}\\
+		\email{X}\\
+	}
 }
 
   
@@ -460,20 +484,122 @@ As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screen
 \end{figure}
 
 
-\begin{figure*}[t]
-	\centering
-	\begin{subfigure}{.5\textwidth}
-		\centering
-		\includegraphics[width=0.9\columnwidth]{figures/high.png}
-		\caption{High Performing~\label{fig:highhmm}}
-	\end{subfigure}\begin{subfigure}{.5\textwidth}
-	\centering
-	\includegraphics[width=0.9\columnwidth]{figures/low.png}
-	\caption{Low Performing~\label{fig:lowhmm}}
-\end{subfigure}
-\caption{Learned transition models for one of the game levels}~\label{fig:highvslow}
-\end{figure*}
+%\begin{figure*}[t]
+%	\centering
+%	\begin{subfigure}{.5\textwidth}
+%		\centering
+%		\includegraphics[width=0.9\columnwidth]{figures/high.png}
+%		\caption{High Performing~\label{fig:highhmm}}
+%	\end{subfigure}\begin{subfigure}{.5\textwidth}
+%	\centering
+%	\includegraphics[width=0.9\columnwidth]{figures/low.png}
+%	\caption{Low Performing~\label{fig:lowhmm}}
+%\end{subfigure}
+%\caption{Learned transition models for one of the game levels}~\label{fig:highvslow}
+%\end{figure*}
 	
+\begin{figure*}
+	\centering
+	\begin{subfigure}[b]{.48\textwidth}
+		\centering
+		\resizebox{1\textwidth}{!}{
+			
+			\begin{tikzpicture}[->,>=stealth',shorten >=0pt,auto,node distance=.3cm,main node/.style={draw, ellipse}]
+			\node[main node] (1) {S0};
+			
+			\node[main node] (3) [right=of 1, xshift=2cm, yshift=1cm]{S1};
+			\node[main node] (2) [below=of 3, yshift=-1.3cm, xshift=.5cm, fill=lightgray]{\texttt{UsedEsploda}};
+			
+			\node[main node] (5) [right=of 3, xshift=3.5cm, yshift=-.5cm, fill=lightgray]{\texttt{MoveCombo\_0}};
+			\node[main node] (4) [above=of 5, yshift=1.5cm]{S2};
+			\node[main node] (6) [below=of 5, fill=lightgray]{\texttt{UsedGluumi}};
+			\node[main node] (7) [below=of 6, fill=lightgray]{\texttt{MoveObject\_0}};
+			
+			\node[main node] (10) [right=of 4, fill=lightgray, xshift=3cm]{\texttt{MoveCombo\_4}};
+			\node[main node] (9) [above=of 10, fill=lightgray]{\texttt{MoveCombo\_2}};
+			\node[main node] (8) [above=of 9, fill=lightgray]{\texttt{MoveCombo\_1}};
+			\node[main node] (11) [below=of 10, fill=lightgray]{\texttt{MoveCombo\_5}};
+			\node[main node] (12) [below=of 11, fill=lightgray]{\texttt{Failure}};
+			\node[main node] (13) [below=of 12, fill=lightgray]{\texttt{Success}};
+			
+			\path[thick]
+			(1) edge [loop above] node [auto] {0.70} (1)
+			
+			(1) edge [out=-70,in=180] node [auto] {0.95} (2)
+			(1) edge [out=40,in=180] node [auto] {0.28} (3)
+			(3) edge [loop above] node [auto] {0.81} (3)
+			
+			(3) edge [out=-5,in=180] node [auto] {0.34} (5)
+			(3) edge [out=-20,in=180] node [auto] {0.30} (6)
+			(3) edge [out=-45,in=180] node [auto] {0.29} (7)
+			(4) edge [loop above] node [auto] {0.66} (4)
+			(3) edge [out=45,in=180] node [auto] {0.11} (4)
+			(4) edge [out=220,in=10] node [auto] {0.29} (3)
+			
+			(4) edge [out=45,in=180] node [auto] {0.12} (8)
+			(4) edge [out=20,in=180] node [auto] {0.12} (9)
+			(4) edge [out=10,in=180] node [auto] {0.08} (10)
+			(4) edge [out=0,in=180] node [auto] {0.10} (11)
+			(4) edge [out=-20,in=180] node [auto] {0.19} (12)
+			(4) edge [out=-45,in=180] node [auto] {0.32} (13);
+			
+			
+			\end{tikzpicture}
+		}
+		
+		\caption{High Performing}~\label{fig:highhmm}
+	\end{subfigure}\quad
+	\begin{subfigure}[b]{.48\textwidth}
+		\centering
+		\resizebox{1\textwidth}{!}{
+			\begin{tikzpicture}[->,>=stealth',shorten >=0pt,auto,node distance=.3cm,main node/.style={draw, ellipse}]
+			\node[main node] (1) {S0};
+			
+			\node[main node] (3) [right=of 1, xshift=2cm, yshift=1cm]{S1};
+			\node[main node] (2) [below=of 3, yshift=-1.3cm, xshift=.5cm, fill=lightgray]{\texttt{UsedEsploda}};
+			\node[main node] (13) [below=of 2, fill=lightgray]{\texttt{MoveObject\_0}};
+			
+			\node[main node] (5) [right=of 3, xshift=3.5cm, yshift=-.5cm, fill=lightgray]{\texttt{MoveCombo\_0}};
+			\node[main node] (4) [above=of 5, yshift=1.5cm]{S2};
+			\node[main node] (6) [below=of 5, fill=lightgray]{\texttt{MoveCombo\_5}};
+			\node[main node] (7) [below=of 6, fill=lightgray]{\texttt{UsedGluumo}};
+			
+			\node[main node] (10) [right=of 4, fill=lightgray, xshift=3cm]{\texttt{MoveCombo\_4}};
+			\node[main node] (9) [above=of 10, fill=lightgray]{\texttt{MoveCombo\_3}};
+			\node[main node] (8) [above=of 9, fill=lightgray]{\texttt{MoveCombo\_2}};
+			\node[main node] (11) [below=of 10, fill=lightgray]{\texttt{Failure}};
+			\node[main node] (12) [below=of 11, fill=lightgray]{\texttt{Success}};
+			
+			\path[thick]
+			(1) edge [loop above] node [auto] {0.76} (1)
+			
+			(1) edge [out=-60,in=180] node [auto] {0.43} (2)
+			(1) edge [out=40,in=180] node [auto] {0.22} (3)
+			(1) edge [out=-85,in=180] node [auto] {0.55} (13)
+			(3) edge [out=220,in=10] node [auto] {0.12} (1)
+			
+			(3) edge [loop above] node [auto] {0.78} (3)
+			
+			(3) edge [out=-5,in=180] node [auto] {0.55} (5)
+			(3) edge [out=-20,in=180] node [auto] {0.06} (6)
+			(3) edge [out=-45,in=180] node [auto] {0.31} (7)
+			(4) edge [loop above] node [auto] {0.71} (4)
+			(3) edge [out=45,in=180] node [auto] {0.08} (4)
+			(4) edge [out=220,in=10] node [auto] {0.20} (3)
+			
+			(4) edge [out=45,in=180] node [auto] {0.19} (8)
+			(4) edge [out=20,in=180] node [auto] {0.10} (9)
+			(4) edge [out=10,in=180] node [auto] {0.14} (10)
+			(4) edge [out=0,in=180] node [auto] {0.19} (11)
+			(4) edge [out=-20,in=180] node [auto] {0.33} (12);
+			
+			\end{tikzpicture}
+		}\\
+		\caption{Low Performing}~\label{fig:lowhmm}
+	\end{subfigure}
+	\caption{Learned Transition Models for One of the Game Levels}~\label{fig:highvslow}
+\end{figure*}
+
 \subsection{Discussion}
 In this study we aimed to explore the effectiveness of data-driven methods for student modeling in educational games. 
 To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and showed improvement over two  baselines based on intuition. 
