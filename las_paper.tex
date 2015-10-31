@@ -129,7 +129,7 @@ In contrast, invisible assessment  unobtrusively gathers  performance data from 
 We present a novel data analysis pipeline, {Student Profficiency Inferrer from Game data} (\algname), that allows modeling  game playing behavior in educational games.
 Unlike prior work, \algname is a fully data-driven method that does not require costly domain knowledge engineering.
 We validate our method using data collected from students playing 11 educational mini-games.
-Our results suggest that \algname is accurate to predict Math assessments ($R^2$ =0.55 , Spearman $\rho$=0.51).
+Our results suggest that \algname is accurate to predict Math assessments (Correlation=0.55 , Spearman $\rho$=0.51).
 \end{abstract}
 
 \category{K.3.1}{Computer Uses in Education.}
@@ -309,7 +309,7 @@ we use a number of discrete observations like ``\texttt{Move Object Cluster 1}".
 %It is also robust to outliers which in our case can be ted as noisy movements that are not representative of learning competency. 
 %We colored the points according to the DBSCAN clustering.
 The specific clustering algorithm we used  for learning a SPRING model is  called DBSCAN~\cite{ester1996density}.
-In preliminary experiments we tried other  unsupervised methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
+In preliminary experiments we tried other unsupervised methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in the data a-priori.
 
 %After running DBSCAN on the filler dimensions, we trained a K-Nearest Neighbor (K-NN) classifier on the fillers and cluster labels. 
 
@@ -327,7 +327,7 @@ In order to find an interpretable model that describes the behavior of different
 However, since we are particularly trying to find patterns among students that is predictive of their post-test performance, we used the median of post-test scores to divide students into two groups. 
 In each game level, we place the students who received a post-test score below or equal to the median in the low-performing group and the students who received a post-test score higher than the median in the high-performing group.
 Due to the small number of students in our dataset, particularly in the later game levels, we only used two clusters. 
-We hypothesized that students in difference performance groups play the game differently. Our sequence modeling phase should be able to capture this difference by observing the playing pattern of each group.
+We hypothesized that students in difference performance groups play the game differently. Our sequence modeling phase should be able to capture this difference by observing the playing patterns of each group.
 
 \subsection{Sequence Modeling}
 Once we have transformed the slot-and-filler structure into sequences of discrete observations, we can start looking for sequential patterns among different performance groups in each game level.
@@ -346,10 +346,10 @@ We used the output of the discretization step (2D array of multinomial observati
 \subsection{Feature Vector Modeling}
 
 %In this phase, we created a linear regression model using the likelihoods extracted from the previous phase. 
-For each student $s$  in each game level $g$, we calculate the difference ($d_{s,g}$) of the likelihood of belonging to high performing group minus the likelihood of of belonging to the low performing group.
-We calculate this likelihood by estimating the Forward-Backward probabilities  on each student sequence sequence of actions  based on the two HMMs parameter we estimated (whether the student is in the high performing group or in the low performing group):
+For each student $s$  in each game level $g$, we calculate the difference between ($d_{s,g}$) of the likelihood of belonging to high performing group and the likelihood of of belonging to the low performing group.
+We calculate this likelihood by estimating the Forward-Backward probabilities  on each student sequence sequence of actions  based on the two HMMs parameter we estimated (whether the student is in the high performing group or in the low performing group) and using a hyperbolic tangent function in order to convert it to a value between -1 and 1: 
 \begin{equation}
-d_{s,g} = \theta_{g, \text{high}} - \theta_{g, \text{low}}
+d_{s,g} = tanh[ K * (\theta_{g, \text{high}} - \theta_{g, \text{low}})]
 \end{equation}
 
 We use  a linear regression model for predicting the post-test scores:
@@ -412,21 +412,22 @@ Finally, we test the regression model on the held-out set (\%20) and report the 
 
 \subsection{Results}
 In order to evaluate our regression model we decided to compare its performance agains two baselines: 1) A regression model that uses success and failure of students in each game level as feature and 2) A regression model that uses the normalized sequence lengths in each game level. 
-Our model was able to significantly outperform both baselines regarding to mean absolute error (MAE) and root mean squared error (RMSE). 
-Moreover, the $R^2$ correlation and Spearman $\rho$ of our predicted values with the true values was much higher than both baselines. 
+Our model was able to outperform both baselines regarding to mean absolute error (MAE) and root mean squared error (RMSE). 
+Moreover, the correlation and Spearman $\rho$ of our predicted values with the true values was much higher than both baselines. 
 Table \ref{tab:results} shows the results.
 
 \begin{table}[tbh]
 	\centering
 	\begin{tabular}{@{}lllll@{}}
 		\toprule
-		\begin{tabular}[c]{@{}l@{}}\textbf{Predictive Features}\end{tabular}            & \begin{tabular}[c]{@{}l@{}}\textbf{$R^2$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{$\rho$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{MAE}\end{tabular} & \textbf{RMSE}\\ \midrule
-		\begin{tabular}[c]{@{}l@{}}Sequence Length (Normal)\end{tabular} & 0.06                                                     & 0.79                                                 & 3.24                                                          & 4.15 \\
-		Success / Failure                                                      & 0.01                                                     & 0.63                                                 & 3.22                                                          & 4.14 \\
-				\algname ($K=2, H=1$)                                                   0.17                                                     & 0.15                                                 &   3.60                                                        & 3.10 \\ 
-		\algname ($K=2, H=2$)                                                      & 0.55                                                     & 0.82                                                 & 2.84                                                          & 3.35 \\ \bottomrule
+		\begin{tabular}[c]{@{}l@{}}\textbf{Predictive Features}\end{tabular}            & \begin{tabular}[c]{@{}l@{}}\textbf{$R$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{$\rho$}\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbf{MAE}\end{tabular} & \textbf{RMSE}\\ \midrule
+		\begin{tabular}[c]{@{}l@{}}Sequence Length (Normal)\end{tabular} & 0.15                                                     & 0.35                                                 & 2.93                                                          & 3.61 \\
+		Success / Failure                                                      & 0.02                                                     & 0.16                                                 & 3.21                                                          & 4.08 \\
+				\algname ($K=2, H=1$)                                                                                                        & 0.17                                                 &   0.25                                                        &
+				3.60 & 3.10 \\ 
+		\textbf{\algname ($K=2, H=2$)}                                                      & \textbf{0.55}                                                     & \textbf{0.51}                                                 & \textbf{2.84}                                                          & \textbf{3.35} \\ \bottomrule
 	\end{tabular}
-	\caption{The results of predicting post-test scores using three different feature sets \hl{Bold the best model.  Are differences statistical significant? Consider adding confidence intervals?} }~\label{tab:results}	
+	\caption{The results of predicting post-test scores using three different feature sets.}~\label{tab:results}	
 \end{table}
 
 
@@ -455,7 +456,7 @@ As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screen
 \begin{figure}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/regression.png}
-	\caption{Results of predicting the post-test scores of the held-out set along with the regression line and \%95 interval. \hl{Remove background of image}}~\label{fig:regression}
+	\caption{Results of predicting the post-test scores of the held-out set along with the regression line and \%95 interval.}~\label{fig:regression}
 \end{figure}
 
 
@@ -475,10 +476,15 @@ As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screen
 	
 \subsection{Discussion}
 In this study we aimed to explore the effectiveness of data-driven methods for student modeling in educational games. 
-To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and showed significant improvement over two  baselines based on intuition. 
-%The RMSE and MAE results, while significant, may not be the best metric to interpret the performance of our model since an improvement of 0.38 in MAE compared to the Success/Failure baseline means that on average our model  
-\hl{Spearman correlation is the most important}
-However, predicting post-test scores was not the only reason for designing the pipeline. 
+To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and showed improvement over two  baselines based on intuition. 
+In order to evaluate the significance of our results, we calculated the absolute difference between the true and predicted value for each student in our heldout set.
+We used paired onesided t-test (n=15) for judging the significane of the improvement over MAE and RMSE.
+Unfortunately, the improvement was not significant ($p=0.20$ the Success/Failure baseline and $p=0.26$ the Sequence Length baseline).
+
+We investigated this problem in more depth and we believe that the reason we could not achieve significant improvement was mainly because we tested the algorithm on a small dataset.
+Our heldout set contains only 15 students and a few of them achieved poor performance results in the post-test while successfully finishing most of the game levels. We believe that using a larger data set will lower the negative effect of such students in the future.
+
+On the other hand, predicting post-test scores was not the only reason for designing the pipeline. 
 We were also seeking for a descriptive model that can give us insight into low-level patterns in student movements. 
 This was the main idea behind using HDP-HMMs in the sequence modeling phase and our hypothesis that high-performing and low-performing sudents have different sequential patterns. 
 
@@ -488,9 +494,8 @@ Then, they have to use the \texttt{Gluumi} tools to convert the single unit obje
 And finally, they have to move the composite object they have created into the designated area.
 For comparison purposes, we are showing a three state HMM for both high- and low-performing students and removed the edges that had the probability below 0.05. 
 Figure~\ref{fig:highhmm} represents the HMM for high-performing students. 
-The three latent states, $S_{0-2}$ can be interpreted as sequential steps, that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{Move Combo\_{ClusterID}} untill they successfully finish the game.
-On the other hand, low-performing students (Figure~\ref{fig:lowhmm}) do not necessarily follow the expected path and the probability of moving object into the outlier clusters (\texttt{Move Object\_0 and Move Combo\_0}) is also higher in each state for low-performing students.
-\hl{I really like this paragraph and figure, but I don't know how to interpret it.  I don't see anything that resembles move combo in your diagram?}
+The three latent states, $S_{0-2}$ can be interpreted as sequential steps, that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{MoveCombo\_{ClusterID}} untill they successfully finish the game.
+On the other hand, low-performing students (Figure~\ref{fig:lowhmm}) do not necessarily follow the expected path and the probability of moving object into the outlier clusters (\texttt{MoveObject\_0 and MoveCombo\_0}) is also higher in each state for low-performing students.
 
 \section{Relation to Prior Work}
 In order to deal with such highly unstructured data, researchers often use carefully designed network structures (such as Bayesian Networks \cite{albrecht1998bayesian,shute2013stealth}) or game-specific heuristics and benchmarks generated by experts playing the game \cite{mandel2014offline,tastan2011learning}. However, this approach is extremely labor intensive and might fail to capture meaningful patterns in student exploratory habits within the game. Given these limitations, data-driven analysis of student interactions provides a powerful alternative that facilitates the discussions around what does and does not work in a particular educational game.
@@ -499,7 +504,7 @@ The potential of computer games for educational purposes has been of interest si
 
 There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. \textit{Newton's Playground} is an ECD based educational game with 74 problems that designed to teach qualitative physics to students in eighth- and ninth-grade. Students have to guide a green ball to a red ball by creating simple machines. 
 Everything obeys the basic rules of physics relating to gravity and Newton’s three laws of motion. 
-Shute et al. \cite{shute2013stealth} studied the effect of ECD design on student learning and found that students who played the game in a 4 hour session, showed significant improved in their qualitative, conceptual physics understanding.
+Shute et al. \cite{shute2013stealth} studied the effect of ECD design on student learning and found that students who played the game in a 4 hour session, showed significant improvement in their qualitative, conceptual physics understanding.
 
 \textit {Rumble Blocks}  is another educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2014using}, studied the alignment of game to its target learning goals by examining whether student solutions follows the targeted principals. They employ clustering techniques on the individual solutions created by actual students and use principle-relevant metric (PRM) to measure how closely the representative solution embodies a specific targeted principle. The results demonstrated a misalignment between the feedback provided to students and the targeted knowledge.
 
@@ -516,16 +521,7 @@ Moreover, the parameters of the regression model provides a good intuition about
 
 There are many possible directions for future work. On a lower level we can integrate the discretization and sequence modeling step by designing a new type of Hidden Markov Model that accepts slot and filler sequences as input (work in progress). On a higher level, instead of dividing students into two groups (high- and low-performing), we can use the new type of HMM in order to cluster students into more groups that might be  more representative of different approaches students follow in order to solve each game level. We can also replace our regression model with a more powerfull ensemble method that considers different subskills in order to integrate features of each game levels in order to predict the post-test scores.
 
-We only used data from \textit{Alice in AreaLand} in order to evaluate our model. However, the model is designed in a way that can model sequence of student actions in other similar gaming environments that use slot-and-filler structures in order to log student interactions with the system. Finally, using our framework we will be able to build a model that detects incorrect strategies or common misconception that can be used in a dynamic hinting system in order to increase player engagement and learning. 
-
-\hl{Limitation, we don't compare to Valerie Schultz}
-
-\hl{Limitation, we don't control for game ability like Valrerie does}
-
-\hl{Limitation, we only used data from Alice in wonderland}
-
-\hl{Method is accuaate}
-
+We only used data from \textit{Alice in AreaLand} in order to evaluate our model. However, the model is designed in a way that can model sequence of student actions in other similar gaming environments that use slot-and-filler structures in order to log student interactions with the system. Finally, using our framework we will be able to build a model that detects incorrect strategies or common misconception that can be used in a dynamic hinting system in order to increase player engagement and learning.
 
 \bibliographystyle{SIGCHI-Reference-Format}
 \bibliography{references}
