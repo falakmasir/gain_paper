@@ -352,7 +352,7 @@ However, since we are particularly trying to find patterns among students that i
 In each game level, we place the students who received a post-test score below or equal to the median in the low-performing group and the students who received a post-test score higher than the median in the high-performing group.
 Due to the small number of students in our dataset, particularly in the later game levels, we only used two clusters. 
 We hypothesized that students in difference performance groups play the game differently. 
-Our sequence modeling phase should be able to capture this difference by capturing the interaction patterns of each group in different game levels.
+Our sequence modeling phase should be able to capture these differences by learning the interaction patterns of each group in different game levels.
 
 \subsection{Sequence Modeling}
 Once we have transformed the slot-and-filler structure into sequences of discrete observations, we can start looking for sequential patterns among different performance groups in each game level.
@@ -360,7 +360,7 @@ Hidden Markov Models are a popular statistical tool for analyzing sequential pat
 Given the sequence of student actions (observations), we aim to infer a set of unobserved (latent) states, which describe the process that generated the observations, along with statistical patterns that can describe and distinguish those states.
 However, learning the ``best" value for number of states ($H$) is a difficult problem in practice. 
 There has been considerable prior work on this problem that used penalized likelihoods \cite{rabiner1989hmm}, Monte-Carlo cross-validation \cite{smyth1996clustering}, and mixture of HMMs \cite{smyth1997clustering}.
-We used the Hierarchical Diriclet Process HMM (HDP-HMM) \cite{fox2008hdp}, which is allows state spaces of unknown size to be learned from data. 
+We used the Hierarchical Diriclet Process HMM (HDP-HMM) \cite{fox2008hdp}, which allows state spaces of unknown size to be learned from data. 
 HDP-HMM defines a \textit{hierarchical Dirichlet process} prior on transition matrices over countably infinite state spaces and is able to make a principled choice of how many states it needs based on the complexity of its training data. 
 For details on training methods please refer to \cite{fox2008hdp}.
 
@@ -428,9 +428,7 @@ Figure \ref{fig:frequency} shows the frequency of different events in each game 
 
 We only used the interactions of the students who participated in the post-test in our data analysis pipeline.
 Different attempts a student makes at a problem and the change of performance over time is a rich data source for inferring proficiency.
-However, due to the design of our experiment (predicting students' post-test scores) and the fact that there is only one post-test score for each student in our dataset, we decided to  only incorporate the first attempt (sequence of actions) in each game level in our analysis.
-
-Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level. 
+However, due to the design of our experiment (predicting students' post-test scores) and the fact that there is only one post-test score for each student in our dataset, we decided to  only incorporate the first attempt (sequence of actions) in each game level in our analysis. Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level. 
 
 \begin{figure}
 	\centering
@@ -467,7 +465,7 @@ Table \ref{tab:results} shows the results.
 \end{table}
 
 In Table \ref{tab:results} we reported two versions of the \algname algorithm. 
-The HMM with only one state ($H=1$) represents the model with one state that only considers the distribution of different activities in a sequence (similar to Gaussian Mixture Models) in order to demonstrate the effect of our discretization step.
+The HMM with only one state ($H=1$) represents the model with no memory that only considers the distribution of different observations in a sequence (similar to Gaussian Mixture Models) in order to demonstrate the effect of our discretization step.
 The best performing model however, learns the best number of states for each game level based on the training examples and outperforms the model with only one state.
 The $K=2$ here refers to the number of HMMs we learn for each game level: one for high-performing students and one for low-performing students. 
 
@@ -616,10 +614,10 @@ This observation could raise a question for the utility of similar data-driven m
 However, we believe that using a larger data set will lower the negative effect of such students in the future.
 
 Another limitation of our approach is that our student performance clustering phase uses the post-test scores (independent variable) to divide students into high- and low-performance groups. 
-In order to avoid using information from the independant variable to calculate the features of our regression model, we are using a \%80-\%20 split to validate the results instead of for example using a 10-fold cross validation.
+In order to avoid using information from the independant variable to calculate the features of our regression model, we are using a \%80-\%20 split to validate the results instead of for example using a 10-fold cross validation. 
 
-The difference in predictive performance between games is likely related to game design. 
-Some games are designed to introduce game tools and techniques while others are created to present choices to players aligned with math proficiency.
+The difference in predictive performance between game levels is likely related to game design. 
+Some game levels are designed to introduce game tools and techniques while others are created to present choices to players aligned with math proficiency.
 We believe the source of difference is mainly due to the fact that finding the solution to later game levels requires mastery in all three major subskills targetted by the game design.
 
 On the other hand, predicting post-test scores was not the only reason for designing the pipeline.
@@ -642,7 +640,7 @@ One of the key drawbacks of model-free methods is that their results are difficu
 However, the discretization process along with the use of HDP-HMM, makes our model human readable and can give us insight into how student interact with each game level.
 Moreover, the parameters of the regression model provides a good intuition about the importance of each game level and its influence in distinguishing between high- and low-performing students.
 
-There are many possible directions for future work. On a lower level we can integrate the discretization and sequence modeling step by designing a new type of Hidden Markov Model that accepts slot and filler sequences as input (work in progress). On a higher level, instead of dividing students into two groups (high- and low-performing), we can use the new type of HMM in order to cluster students into more groups that might be  more representative of different approaches students follow in order to solve each game level. We can also replace our regression model with a more powerfull ensemble method that considers different subskills in order to integrate features of each game levels in order to predict the post-test scores.
+There are many possible directions for future work. On a lower level we can integrate the discretization and sequence modeling step by designing a new type of Hidden Markov Model that accepts slot and filler sequences as input (work in progress). On a higher level, instead of dividing students into two groups (high- and low-performing), we can use the HMM in order to cluster students \cite{bicego2003similarity,smyth1997clustering} into more groups that might be  more representative of different approaches students follow in order to solve each game level. We can also replace our regression model with a more powerfull ensemble method that considers different subskills in order to integrate features of each game levels in order to predict the post-test scores.
 
 We only used data from \textit{Alice in AreaLand} in order to evaluate our model. However, the model is designed in a way that can model sequence of student actions in other similar gaming environments that use slot-and-filler structures in order to log student interactions with the system. Finally, using our framework we will be able to build a model that detects incorrect strategies or common misconception that can be used in a dynamic hinting system in order to increase player engagement and learning.
 
