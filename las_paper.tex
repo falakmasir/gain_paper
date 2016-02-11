@@ -158,12 +158,14 @@ In many developed countries, students now find themselves spending increasing am
 For example, a  survey of the current state of testing in America revealed that students are taking an average of 113 standardized tests between pre-K and highschool~\cite{lazarin2014testing}. 
 For these reasons, it is not surprising that both politicians and the general population have been weighing in on the question of whether students are being tested too much~\cite{lazarin2014testing}.
 
-
-According to Evidence Centered Design (ECD)~\cite{mislevy2012design}, the goal of assessment is to characterize the strength of evidence regarding claims one wants to make about individuals or groups.
+Learning and succeding is not easily measured by solving constrained tasks and answering verbal or multiple-choice questions.
+Advancements in educational and psychological measurements allows us to diagnose student competencies more accurately and effectively at various levels during the course of learning.
+An alternative to traditional summative assessment in computer based learning environments is invisible (or stealth) assessment~\cite{shute2013stealth}.
+Key elements of the approach include an evidence-centered assessment design and formative feedback to support learning.
+According to Evidence Centered Design (ECD)~\cite{mislevy2012design}, the goal of assessment is to characterize the evidence regarding claims one wants to make about the competencies of individuals or groups of students.
 Therefore, the assessment process involves identifying, organizing, or creating activities for students so that we may observe that evidence.
-An alternative to traditional summative assessment in computer based learning environments is invisible (or stealth) assessment~\cite{shute2013stealth},
-where the evidence is unobtrusively gathered from learners' interactions to understand what students know and what they can do \cite{shute2009melding}.
-Stealth assessment is also intended to reduce or eliminate test anxiety, while not sacrificing validity and reliability \cite{shute2008you}.
+The goal is to eventually blur the distinction between assessment and learning.
+Stealth assessment is also intended to reduce or eliminate test anxiety, while not sacrificing validity and reliability of the results \cite{shute2008you}.
 
 A promising opportunity for invisible assessment is using log data collected from educational games.
 Unfortunately, engineering a system that interprets log data is costly and time-consuming.
@@ -196,10 +198,16 @@ For example, a \texttt{Move Object} event  that represents the learner moving an
 
 
 Conventional machine learning algorithms cannot input slot and filler data, as they  usually work with data structures called \textit{feature vectors}. 
-While feature vectors are extreamly common, plenty of work has been done on richer representations.
 Traditional feature vector classifiers (like logistic regression or decision trees)  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data as input. 
 A vector representation requires mapping of observations onto a fixed number of features.
 It is not obvious how to best map events that may have a variable number or type of slots, or sequences of student actions that can be of an arbitrary length into a feature vector that needs to be of a predetermined dimension.
+
+In order to work around these limitations, researchers use the state-action graph of the game environment for extracting features. 
+States stand for different configurations of the game environment and actions represent different ways students can interact with the game environment in each state.
+Each action results in a (stochastic) transition between states and defining a compact state representation is a key to capture the information that is relevant to measure learning.
+One way to extract features from the state-action graph is to learn a stochastic policy, describing what action a user will take on a certain state based on the history of previous actions \cite{lee2014learning, liu2013predicting}.
+However, such methods usually use pre-defined heuristics to define a reward function and the learned policy is strongly dependent on these
+heuristics.
 
 In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 \algname first receives the interaction data in slot and filler format as input and generates a sequence of abstract observations by employing an unsupervised clustering method. 
@@ -213,11 +221,15 @@ Our experiments suggest that \algname is able to capture student differences and
 The more student data is available, the better parameter estimation we can perform and the learned HMM as a graphical model can be used in post-hoc interpretations by domain experts to gain insight into students' interaction patterns.
 
 \section{Background}
-The potential of computer games for educational purposes has been of interest since nearly the beginning of video games. Unlike video games, which focus on creating an entertaining experience for the user, educational games require principles and strategies that engage students while maximizing their learning gain. Therefore, studying student interactions is a crucial step toward understanding their learning process and improving the game environment in the future.
+The potential of computer games for educational purposes has been of interest since nearly the beginning of video games. Unlike video games, which focus on creating an entertaining experience for the user, educational games require principles and strategies that engage students while maximizing their learning gain. However, games have produced mixed learning outcomes in the classroom \cite{harpstead2013search,mayo2009video} and studying student interactions is a crucial step toward understanding their learning process and improving the game environment in the future.
 
-There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. For example, \textit {Rumble Blocks} \cite{harpstead2014using} is a physics educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2013investigating}, used a two-dimensional context-free grammar to extract conceptual features from  logs of student play sessions. They used the extracted features to cluster students' solutions in order to measure how many students follow the designers’ envisioned path.
+There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. For example, \textit {Rumble Blocks} \cite{christel2012rumbleblocks} is a physics educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2013investigating}, used a two-dimensional context-free grammar to extract conceptual features from  logs of student play sessions. They used the extracted features to cluster students' solutions in order to measure how many students follow the designers’ envisioned path.
 
-%\textit {Battleship Numberline} is another educational game for understanding fractions using number line estimation. Students attempt to explode target ships and submarines by estimating numbers on a number line. Lomas et al. \cite{lomas2013optimizing} performed a large-scale online experiment in order to study the effect of game difficulty on player motivation and learning. They presented different configurations of the game for different groups of students. and used a combination of time spent and challenges attempted as a measure of engagement and the average success rate of each design configuration as a measure of challenge. The results showed a linear correlation between challenge (difficulty) and engagement, meaning the easier the game, the longer students played.
+\textit{Crystal Island} \cite{rowe2010integrating} is an educational 3D game environment for learning microbiology in middle school. 
+Rowe and Lester \cite{rowe2010modeling} used a hand-authored dynamic Bayesian network (DBN) to model student knowledge in four broad components: narrative, content, strategy, and solution knowledge. 
+They hand picked a set of observable actions that can serve as evidence of the student’s underlying knowledge in each category and defined conditional probability tables for each of the network nodes (observable and latent).
+They used observations from 116 eighth-graders interacting with the game environment in 50 minute sessions.
+In order to evaluate the model, they experimented with different threshold levels to discriminate between mastered and un-mastered knowledge components and used the final estimate of student knowledge in each category (mastered vs. not mastered) to predict their post-test results.
 
 \textit {Refraction} \cite{andersen2010gameplay} is another educational game for learning about fractions by splitting laser beams into fractional amounts to target spaceships and avoid asteroids. 
 Liu et al. \cite{liu2013predicting}, created an ensemble algorithm that combines elements of Markov models, player heuristic search, and collaborative filtering techniques with state-space clustering in order to predict player movements on the last game level based on the history of movements in previous game levels. 
@@ -429,15 +441,16 @@ Figure \ref{fig:frequency} shows the frequency of different events in each game 
 	\caption{Frequency of Events in Each Game Level}~\label{fig:frequency}
 \end{figure}
 
-We only used the interactions of the students who participated in the post-test in our data analysis pipeline.
-Different attempts a student makes at a problem and the change of performance over time is a rich data source for inferring proficiency.
-However, due to the design of our experiment (predicting students' post-test scores) and the fact that there is only one post-test score for each student in our dataset, we decided to  only incorporate the first attempt (sequence of actions) in each game level in our analysis. Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level. 
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.9\columnwidth]{figures/boxplot.pdf}
 	\caption{Boxplot of Sequence Length in Each Game Level}~\label{fig:boxplot}
 \end{figure}
+
+We only used the interactions of the students who participated in the post-test in our data analysis pipeline.
+Different attempts a student makes at a problem and the change of performance over time is a rich data source for inferring proficiency.
+However, due to the design of our experiment (predicting students' post-test scores) and the fact that there is only one post-test score for each student in our dataset, we decided to  only incorporate the first attempt (sequence of actions) in each game level in our analysis. Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level. 
 
 \subsection{Experimental Setup}
 First we divide students into two groups, one (80\%) for training and development purposes and the other (20\%) for test and verification.
