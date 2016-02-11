@@ -11,6 +11,7 @@
 \usepackage{microtype} % Improved Tracking and Kerning
 \usepackage{ccicons}  % Cite your images correctly!
 \usepackage{multicol}
+\usepackage{balance}
 \usepackage{color} 
 \newcommand{\hl}[1]{\colorbox{yellow}{#1}}
 \usepackage{xspace}
@@ -241,11 +242,11 @@ The more student data is available, the better parameter estimation we can perfo
 \section{Background}
 The potential of computer games for educational purposes has been of interest since nearly the beginning of video games. Unlike video games, which focus on creating an entertaining experience for the user, educational games require principles and strategies that engage students while maximizing their learning gain. However, games have produced mixed learning outcomes in the classroom \cite{harpstead2013search,mayo2009video} and studying student interactions is a crucial step toward understanding their learning process and improving the game environment in the future.
 
-There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. For example, \textit {Rumble Blocks} \cite{christel2012rumbleblocks} is a physics educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2013investigating}, used a two-dimensional context-free grammar to extract conceptual features from  logs of student play sessions. They used the extracted features to cluster students' solutions in order to measure how many students follow the designers’ envisioned path.
+There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. For example, \textit {Rumble Blocks} \cite{christel2012rumbleblocks} is a physics educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2013investigating}, used a two-dimensional context-free grammar to extract conceptual features from  logs of student play sessions. They used the extracted features to cluster students' solutions in order to measure how many students follow the designers' envisioned path.
 
 \textit{Crystal Island} \cite{rowe2010integrating} is an educational 3D game environment for learning microbiology in middle school. 
 Rowe and Lester \cite{rowe2010modeling} used a hand-authored dynamic Bayesian network (DBN) to model student knowledge in four broad components: narrative, content, strategy, and solution knowledge. 
-They hand picked a set of observable actions that can serve as evidence of the student’s underlying knowledge in each category and defined conditional probability tables for each of the network nodes (observable and latent).
+They hand picked a set of observable actions that can serve as evidence of the student's underlying knowledge in each category and defined conditional probability tables for each of the network nodes (observable and latent).
 They used observations from 116 eighth-graders interacting with the game environment in 50 minute sessions.
 In order to evaluate the model, they experimented with different threshold levels to discriminate between mastered and un-mastered knowledge components and used the final estimate of student knowledge in each category (mastered vs. not mastered) to predict their post-test results.
 
@@ -443,6 +444,7 @@ By advancing through game levels, students are presented with three tools: \text
 There is no limit for completing a game level regarding time or number of actions students may execute. 
 The students press the \textit {Go Alice} button (bottom left corner of Figure~\ref{fig:figurekracken}) if they deem their performance to be satisfactory for \textit {Alice} to proceed. 
 Based on the covered area and the arrangement of the tiles, they either advance to the next level or receive a feedback and stay in the same level.
+\newline
 
 \subsection{Dataset} 
 Our dataset consists of time-stamped interactions of 129 students in 11 game levels.
@@ -680,6 +682,7 @@ There are many possible directions for future work. On a lower level we can inte
 We only used data from \textit{Alice in AreaLand} to evaluate our model. However, the model is designed in a way that can model sequences of student actions in other similar gaming environments that use slot-and-filler structures to log student interactions with the system. Finally, using our framework we will be able to build a model that detects incorrect strategies or common misconceptions that can be used in a dynamic hinting system to increase player engagement and learning.
 
 \bibliographystyle{SIGCHI-Reference-Format}
+\balance
 \bibliography{references}
 
 \end{document}
