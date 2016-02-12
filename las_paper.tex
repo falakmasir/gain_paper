@@ -142,10 +142,6 @@
 }
 
 
-
-
-
-
 \CopyrightYear{2016} 
 \setcopyright{acmcopyright}
 \conferenceinfo{L@S 2016,}{April 25-26, 2016, Edinburgh, Scotland Uk}
@@ -177,7 +173,7 @@ In many developed countries, students now find themselves spending increasing am
 For example, a  survey of the current state of testing in America revealed that students are taking an average of 113 standardized tests between pre-K and highschool~\cite{lazarin2014testing}. 
 For these reasons, it is not surprising that both politicians and the general population have been weighing in on the question of whether students are being tested too much~\cite{lazarin2014testing}.
 
-Learning and succeding is not easily measured by solving constrained tasks and answering verbal or multiple-choice questions.
+Learning and succeeding is not easily measured by solving constrained tasks and answering verbal or multiple-choice questions.
 Advancements in educational and psychological measurements allows us to diagnose student competencies more accurately and effectively at various levels during the course of learning.
 An alternative to traditional summative assessment in computer based learning environments is invisible (or stealth) assessment~\cite{shute2013stealth}.
 Key elements of the approach include an evidence-centered assessment design and formative feedback to support learning.
@@ -228,7 +224,7 @@ One way to extract features from the state-action graph is to learn a stochastic
 However, such methods usually use pre-defined heuristics to define a reward function and the learned policy is strongly dependent on these
 heuristics.
 
-In this paper, we propose \textit{Student PRofficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
+In this paper, we propose \textit{Student PRoficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 \algname first receives the interaction data in slot and filler format as input and generates a sequence of abstract observations by employing an unsupervised clustering method. 
 The next step of the pipeline employs non-parametric extensions of Hidden Markov Models (HMMs) in each game level to build a statistical representation that is generalizable across multiple game levels. 
 The HMM models capture patterns of student interactions as sets of unobserved states, each state related to the abstract observations through a probability distribution. 
@@ -372,7 +368,7 @@ The time complexity of DBSCAN is $O(n \log n)$ (n = the number of data points) a
 
 Clustering algorithms, like DBSCAN, often can only discretize observations in the training dataset, and would not generalize to unseen fillers.
 To work around this limitation, we trained a classifier for transforming any filler into a cluster label. 
-In particualr, we used a K-Nearest neighbor (K-NN, n=5) classifier because similar to DBSCAN, it uses an euclidean distance function as a similarity metric.
+In particular, we used a K-Nearest neighbor (K-NN, n=5) classifier because similar to DBSCAN, it uses a Euclidean distance function as a similarity metric.
 The classifier is trained to identify a cluster label using the fillers as predictors.
 The K-NN classifier might not be the best choice for fillers in the outlier cluster. 
 However, our preliminary experiments using cross-validation showed that it has enough discriminative power to distinguish the outlier fillers from other clusters.
@@ -394,7 +390,7 @@ Hidden Markov Models are a popular statistical tool for analyzing sequential pat
 Given the sequence of student actions (observations), we aim to infer a set of unobserved (latent) states, which describe the process that generated the observations, along with statistical patterns that can describe and distinguish those states.
 However, learning the ``best" value for number of states ($H$) is a difficult problem in practice. 
 There has been considerable prior work on this problem that used penalized likelihoods \cite{rabiner1989hmm}, Monte-Carlo cross-validation \cite{smyth1996clustering}, and mixture of HMMs \cite{smyth1997clustering}.
-We used the Hierarchical Diriclet Process HMM (HDP-HMM) \cite{fox2008hdp}, which allows state spaces of unknown size to be learned from data. 
+We used the Hierarchical Dirichlet Process HMM (HDP-HMM) \cite{fox2008hdp}, which allows state spaces of unknown size to be learned from data. 
 HDP-HMM defines a \textit{hierarchical Dirichlet process} prior on transition matrices over countably infinite state spaces and is able to make a principled choice of how many states it needs based on the complexity of its training data. 
 For details on training methods please refer to \cite{fox2008hdp}.
 
@@ -505,11 +501,11 @@ The HMM with only one state ($H=1$) represents the model with no memory that onl
 The best performing model however, learns the best number of states for each game level based on the training examples and outperforms the model with only one state.
 The $K=2$ here refers to the number of HMMs we learn for each game level: one for high-performing students and one for low-performing students. 
 
-In order to evaluate the significance of our results, we calculated the absolute difference between the true and predicted value for each student in our heldout set.
+In order to evaluate the significance of our results, we calculated the absolute difference between the true and predicted value for each student in our held-out set.
 We used paired onesided t-test (n=15) for judging the significance of the improvement in MAE and RMSE.
 Unfortunately, the improvement was not significant ($p=0.20$ the Success/Failure baseline and $p=0.26$ the Sequence Length baseline). Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and 95\% confidence interval.
 
-The regression model also provides us with an insight into how important each game level is in distinguishing between high- and low-performing students. Table \ref{tab:regrweights} shows the weights of each game level in the best perfoming model.
+The regression model also provides us with an insight into how important each game level is in distinguishing between high- and low-performing students. Table \ref{tab:regrweights} shows the weights of each game level in the best performing model.
 As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screenshot Figure~\ref{fig:figurekracken}), has the highest weight in the regression model. 
 This tells us that the difference between the sequence of student interactions in this game level has the highest factor in distinguishing between high- and low-performing students.
 
@@ -643,22 +639,22 @@ This tells us that the difference between the sequence of student interactions i
 In this study we aimed to explore the effectiveness of data-driven methods for student modeling in educational games. 
 To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and suggested improvement over two  baselines.
 As reported in the results section, the improvement results were not statistically significant. We investigated this problem in more depth and we believe that the reason we could not achieve a significant improvement was mainly because we tested the algorithm on a small dataset.
-Our heldout set contains only 15 students and a few of them achieved poor performance results in the post-test while successfully finishing most of the game levels.
+Our held-out set contains only 15 students and a few of them achieved poor performance results in the post-test while successfully finishing most of the game levels.
 This effect is clearly observable in Table \ref{tab:results} where a 0.4 improvement in correlation over the first baseline resulted in 0.09 and 0.26 improvement over MAE and RMSE respectively. 
 This observation could raise a question for the utility of similar data-driven models.
 However, we believe that using a larger data set will lower the negative effect of such students in the future.
 
 Another limitation of our approach is that our student performance clustering phase uses the post-test scores (independent variable) to divide students into high- and low-performance groups. 
-In order to avoid using information from the independant variable to calculate the features of our regression model, we are using a 80\%-20\% split to validate the results instead of for example using a 10-fold cross validation.
+In order to avoid using information from the independent variable to calculate the features of our regression model, we are using an 80\%-20\% split to validate the results instead of for example using a 10-fold cross validation.
 This design decision, while necessary, reduces the sample size further.
 
 The difference in predictive performance between game levels is likely related to game design. 
-Some game levels are designed to introduce game tools and techniques while others are created to present choices to players aligned with math proficiency.
-We believe the source of difference is mainly due to the fact that finding the solution to later game levels requires mastery in all three major subskills targetted by the game design.
+Some game-levels are designed to introduce game tools and techniques while others are created to present choices to players aligned with math proficiency.
+We believe the source of difference is mainly due to the fact that finding the solution to later game levels requires mastery in all three major subskills targeted by the game design.
 
 On the other hand, predicting post-test scores was not the only reason for designing the pipeline.
 We were also seeking for a descriptive model that can give us insight into low-level patterns in student movements. 
-This was the main idea behind using HDP-HMMs in the sequence modeling phase and our hypothesis that high-performing and low-performing sudents have different sequential patterns. 
+This was the main idea behind using HDP-HMMs in the sequence modeling phase and our hypothesis that high-performing and low-performing students have different sequential patterns. 
 
 Figure~\ref{fig:highvslow} shows the difference between two HMMs learned for one of the game levels.
 In this game level in the initial state, students are presented with composite objects and they have to use the \texttt{Esploda} tool to convert them into single unit objects. 
@@ -666,7 +662,7 @@ Then, they have to use the \texttt{Gluumi} tools to convert the single unit obje
 And finally, they have to move the composite object they have created into the designated area.
 For comparison purposes, we are showing a three state HMM for both high- and low-performing students and removed the edges that had probability below 0.05. 
 Figure~\ref{fig:highhmm} represents the HMM for high-performing students. 
-The three latent states, $S_{0-2}$ can be interpreted as sequential steps that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{MoveCombo\_{ClusterID}} untill they successfully finish the game.
+The three latent states, $S_{0-2}$ can be interpreted as sequential steps that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{MoveCombo\_{ClusterID}} until they successfully finish the game.
 On the other hand, low-performing students (Figure~\ref{fig:lowhmm}) do not necessarily follow the expected path and the probability of moving object into the outlier clusters (\texttt{MoveObject\_0 and MoveCombo\_0}) is also higher in each state for low-performing students.
 
 \section{Conclusion and Future Work}
