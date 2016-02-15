@@ -152,9 +152,11 @@
 \maketitle
 
 \begin{abstract}
-Traditional assessments are important in education because they allow collecting evidence about student progress. 
-Unfortunately, they can be very tedious to the stakeholders.
-In contrast, computer-based learning platforms provide the opportunity for invisible assessment by unobtrusively gathering students' digital learning footprints in order to track their progress and make inference about their relevant competencies.
+Student assessments are important in education because they allow collecting evidence about learning. 
+However,  time spent in  evaluating students may have been otherwise  used for instructional activities.
+Computer-based learning platforms provide the opportunity for unobtrusively gathering students' digital learning footprints.
+This data can be used to track learning progress and make inference about student competencies.
+
 We present a novel data analysis pipeline, {Student Proficiency Inferrer from Game data} (\algname), that allows modeling  game playing behavior in educational games.
 Unlike prior work, \algname is a fully data-driven method that does not require costly domain knowledge engineering.
 Moreover, it produces a simple interpretable model that not only fits the data, but also predics learning outcomes.
@@ -173,21 +175,36 @@ In many developed countries, students now find themselves spending increasing am
 For example, a  survey of the current state of testing in America revealed that students are taking an average of 113 standardized tests between pre-K and highschool~\cite{lazarin2014testing}. 
 For these reasons, it is not surprising that both politicians and the general population have been weighing in on the question of whether students are being tested too much~\cite{lazarin2014testing}.
 
-Learning and succeeding is not easily measured by solving constrained tasks and answering verbal or multiple-choice questions.
-Advancements in educational and psychological measurements allows us to diagnose student competencies more accurately and effectively at various levels during the course of learning.
-An alternative to traditional summative assessment in computer based learning environments is invisible (or stealth) assessment~\cite{shute2013stealth}.
-Key elements of the approach include an evidence-centered assessment design and formative feedback to support learning.
+%Learning and succeeding is not easily measured by solving constrained tasks and answering verbal or multiple-choice questions.
+%Advancements in educational and psychological measurements allows us to diagnose student competencies more accurately and effectively at various levels during the course of learning.
 According to Evidence Centered Design (ECD)~\cite{mislevy2012design}, the goal of assessment is to characterize the evidence regarding claims one wants to make about the competencies of individuals or groups of students.
 Therefore, the assessment process involves identifying, organizing, or creating activities for students so that we may observe that evidence.
-The goal is to eventually blur the distinction between assessment and learning.
-Stealth assessment is also intended to reduce or eliminate test anxiety, while not sacrificing validity and reliability of the results \cite{shute2008you}.
+An alternative to traditional summative assessment in computer based learning environments is invisible (or stealth) assessment~\cite{shute2013stealth}.
+Invisible assessment aims to blur the distinction between assessment and learning.
+%,
+%by including an evidence-centered assessment design and formative feedback to support learning.
 
-A promising opportunity for invisible assessment is using log data collected from educational games.
+
+Analyzing log data collected from students playing educational games is a  promising way to perform  invisible assessment of student abilities.
+Prior studies have reported that this may reduce test anxiety, while not sacrificing validity and reliability of the results~\cite{shute2008you}.
 Unfortunately, engineering a system that interprets log data is costly and time-consuming.
 For example, Shute et al.~\cite{shute2013stealth, shute2009melding} relied extensively on domain expertise to define a \textit{Competency Model} in form of a Bayesian Network to describe the set of knowledge and skills involved in the learning environment.
-They also used feature engineering on the performance data to build an \textit{Evidence Model} that expresses how student interactions with the system constitute evidence about competency model variables.
+They also conducted feature engineering on the performance data to build an \textit{Evidence Model} that expresses how student interactions with the system constitute evidence about competency model variables.
 
+
+In this paper, we propose \textit{Student PRoficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 Our motivation is that invisible assessment from game data may become more accurate and cheaper to implement if the domain knowledge engineering could be automated by a data-driven process.
+Our experiments suggest that \algname is able to capture student differences and provide features that can be used to predict student proficiency.
+The rest of this paper is organized as follows:
+\S~\ref{sec:game_data}   describes the specific challenges that makes game data  difficult to analyze;
+\S~\ref{sec:spring} details the SPRING algorithm;
+\S~\ref{sec:experiments} evaluates the SPRING algorithm with student data;
+\S~\ref{sec:priorwork} relates to prior work;
+\S~\ref{sec:conclusion} provides concluding remarks.
+
+
+\section{Automatic Analysis of Game Data}
+\label{sec:game_data}
 Game data is often logged  in a format that we call a \textit{slot and filler} structure.
 In Table~\ref{tbl:log_example}, we show a simplified example of a real educational game log that uses slot and filler structure.
 Typically each action or event has a set of slots (properties).
@@ -218,11 +235,19 @@ For example, a \texttt{Move Object} event  that represents the learner moving an
 %However, they are often restricted to discrete or Gaussian observations and the latent state variable is 
 
   
-
-Standard predictive models (like logistic regression or decision trees)  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, often use a vector representation of features as input. 
+Analyzing slot and filler data is difficult.
+Some general-purpose predictive models (like logistic regression or decision trees)  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, often use a vector representation of features as input. 
 A vector representation requires mapping of observations onto a fixed number of features.
-It is not obvious how to best map the sequence of events (in slot-and-filler format) that may have a variable number or type of slots, or sequences of student actions that can be of an arbitrary length into a vector representation that needs to be of a predetermined dimension.
+It is not obvious how to best map the sequence of events (in slot-and-filler format) that may have a variable number or type of slots into feature vectors  that need to be of a predetermined dimension.
 
+Machine learning algorithms that are able to work with data that is not formulated as feature vectors include kernel methods and graphical models.
+To the extent of our knowledge, there are no kernels designed specifically for slot and filler structures.
+Popular general-purpose graphical models, such as Markov Models, and Hidden Markov Models (HMM), cannot be readily used for slot and filler data because the dimension of each time step is variable (each slot may take a different number of fillers).
+On the other had,  \textit{ad hoc} graphical models have  been proposed for mining specific games.
+However, these graphical models were tailored by subject matter experts, and do not generalize across different games \hl{CITE VALERIE SHUTE HERE}.
+
+
+\hl{I DO NOT UNDERSTAND THESE PARAGRAPH:}
 In order to work around these limitations, researchers use the state-action graph of the game environment for extracting features. 
 States stand for different configurations of the game environment and actions represent different ways students can interact with the game environment in each state.
 Each action results in a (stochastic) transition between states and defining a compact state representation is a key to capture the information that is relevant to measure learning.
@@ -230,41 +255,28 @@ One way to extract features from the state-action graph is to learn a stochastic
 However, such methods usually use pre-defined heuristics to define a reward function and the learned policy is strongly dependent on these
 heuristics.
 
-In this paper, we propose \textit{Student PRoficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
-\algname first receives the interaction data in slot and filler format as input and generates a sequence of abstract observations by employing an unsupervised clustering method. 
+
+To learn \algname model, we need (i) interaction data in slot and filler format collected from students playing educational games and (ii) their results in  traditional assessments.
+\algname transforms the slot and filler data to sequences that can be modeled with Hidden Markov Models.
+It then extracts features from the sequences, and uses them in a regression model to predict the score of the traditional assessment.
+After this, \algname is able to predict assessment performance of students by just observing their game activity as described by their slot and filler log.
+
+\begin{comment}
+ as input and generates a sequence of abstract observations by employing an unsupervised clustering method. 
 The next step of the pipeline employs non-parametric extensions of HMMs in each game level to build a statistical representation that is generalizable across multiple game levels. 
 The HMM models capture patterns of student interactions as sets of unobserved states, each state related to the abstract observations through a probability distribution. 
 Finally, the last stage of the pipeline builds a regression model using features extracted from the HMMs of each game level to predict the student post-test scores.
 We demonstrate the effectiveness of our approach on real student game playing data.
 The method is purely data-driven and learns parameters from student data without assuming a model. 
-The only assumption here is that high- and low-performing students interact differently with the game environment.
-Our experiments suggest that \algname is able to capture student differences and provide features that can be used to predict student proficiency.
+We assume that high- and low-performing students interact differently with the game environment.
 The more student data is available, the better parameter estimation we can perform and the learned HMM as a graphical model can be used in post-hoc interpretations by domain experts to gain insight into students' interaction patterns.
+\end{comment}
 
-\section{Background}
-The potential of computer games for educational purposes has been of interest since nearly the beginning of video games. Unlike video games, which focus on creating an entertaining experience for the user, educational games require principles and strategies that engage students while maximizing their learning gain. However, games have produced mixed learning outcomes in the classroom \cite{harpstead2013search,mayo2009video} and studying student interactions is a crucial step toward understanding their learning process and improving the game environment in the future.
 
-There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. For example, \textit {Rumble Blocks} \cite{christel2012rumbleblocks} is a physics educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al.~\cite{harpstead2013investigating} used a two-dimensional context-free grammar to extract conceptual features from  logs of student play sessions. They used the extracted features to cluster students' solutions in order to measure how many students follow the designers' envisioned path.
-
-\textit{Crystal Island} \cite{rowe2010integrating} is an educational 3D game environment for learning microbiology in middle school. 
-Rowe and Lester \cite{rowe2010modeling} used a hand-authored dynamic Bayesian network (DBN) to model student knowledge in four broad components: narrative, content, strategy, and solution knowledge. 
-They hand picked a set of observable actions that can serve as evidence of the student's underlying knowledge in each category and defined conditional probability tables for each of the network nodes (observable and latent).
-They used observations from 116 eighth-graders interacting with the game environment in 50 minute sessions.
-In order to evaluate the model, they experimented with different threshold levels to discriminate between mastered and un-mastered knowledge components and used the final estimate of student knowledge in each category (mastered vs. not mastered) to predict their post-test results.
-
-\textit {Refraction} \cite{andersen2010gameplay} is another educational game for learning about fractions by splitting laser beams into fractional amounts to target spaceships and avoid asteroids. 
-Liu et al.~\cite{liu2013predicting} created an ensemble algorithm that combines elements of Markov models, player heuristic search, and collaborative filtering techniques with state-space clustering in order to predict player movements on the last game level based on the history of movements in previous game levels. 
-Lee et al. \cite{lee2014learning} extended the former framework by building a state-action graph and using feature selection techniques to reduce the number of features for each state. 
-To ensure extensibility, they also tested the framework on another game, \textit {DragonBox}, and reported improvement over \cite{liu2013predicting}.
-
-\textit {Quantum Spectre} is a more complex puzzle-style educational game designed for high school students to learn optics. 
-Eagle et al. \cite{eagle2015measuring} used interaction networks (IN) to visualize and derive insight into students' problem solving behavior and common misconceptions. 
-They used data from 195 students in 15 classes and created the full IN of every state and possible actions for each game level. 
-Next, they used clustering to reduce the state-action space into a high level visualization of how students progress through the puzzle and classify each student interaction into four categories: correct, placement error, rotation error, and puzzle error. 
-Finally, they picked a smaller set of students (n=10) and used a linear regression model to predict their post-test results.
-The results show a direct negative relationship between science-related game play errors and the post-test scores.
 
 \section{SPRING Algorithm}
+\label{sec:spring}
+
 
 \algname is designed in a way that can capture sequential decision making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge. 
 Our data analysis pipeline receives raw data of student interactions with the different levels of educational game in slot and filler format along with their post-test results and creates a regression model for predicting the post-test scores. 
@@ -276,7 +288,7 @@ We now explain the different steps in detail.
 
 \begin{algorithm}[ht]
 \begin{algorithmic}[1]
-\Require: A log file $\mathbf{L_{g,s,t}}$ of slot-and-filler structure for each game $g$ and student $s$ (indexed by time $t$),  results from a student assessment $y_s$, number of performance clusters $K$, number of latent states $H$.
+\Require: A log file $\mathbf{L_{g,s,t}}$ of slot and filler structure for each game $g$ and student $s$ (indexed by time $t$),  results from a student assessment $y_s$, number of performance clusters $K$, number of latent states $H$.
 \For {each  game $g$}  \tikzmark{disctop}
 	\For {each slot $z$}
 		\State $\mathbf{D_{g,s,t}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s,t}}, z$) 
@@ -425,9 +437,10 @@ We experimented with different regularization methods, but only report LASSO \ci
 
 
 \section{Empirical Evaluation}
+\label{sec:experiments}
 
-\subsection{Game Environment}
-\textit {Alice in AreaLand} is an educational game developed as a part of Pearson Insight Learning System \footnote{http://researchnetwork.pearson.com/learning-science/insight-learning-system}. 
+
+We use data collected from \textit {Alice in AreaLand},  an educational game developed as a part of Pearson Insight Learning System \footnote{http://researchnetwork.pearson.com/learning-science/insight-learning-system}. 
 It focuses on teaching and assessing geometric measurement, specifically the understanding of area, among 6\textsuperscript{th} grade students. 
 The game targets three main stages in the development of area: 1) area unit iteration, 2) use of unit squares to measure area, and 3) use of composites to measure area. 
 The current version has 12 game levels. 
@@ -482,7 +495,32 @@ In the regression phase, we use the likelihood of students' sequences in order t
 Finally, we test the regression model on the held-out set (20\%) and report the results.
 
 
+\section{Relation to Prior Work}
+\label{sec:priorwork}
+The potential of computer games for educational purposes has been of interest since nearly the beginning of video games. Unlike video games, which focus on creating an entertaining experience for the user, educational games require principles and strategies that engage students while maximizing their learning gain. However, games have produced mixed learning outcomes in the classroom \cite{harpstead2013search,mayo2009video} and studying student interactions is a crucial step toward understanding their learning process and improving the game environment in the future.
+
+There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. For example, \textit {Rumble Blocks} \cite{christel2012rumbleblocks} is a physics educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al.~\cite{harpstead2013investigating} used a two-dimensional context-free grammar to extract conceptual features from  logs of student play sessions. They used the extracted features to cluster students' solutions in order to measure how many students follow the designers' envisioned path.
+
+\textit{Crystal Island} \cite{rowe2010integrating} is an educational 3D game environment for learning microbiology in middle school. 
+Rowe and Lester \cite{rowe2010modeling} used a hand-authored dynamic Bayesian network (DBN) to model student knowledge in four broad components: narrative, content, strategy, and solution knowledge. 
+They hand picked a set of observable actions that can serve as evidence of the student's underlying knowledge in each category and defined conditional probability tables for each of the network nodes (observable and latent).
+They used observations from 116 eighth-graders interacting with the game environment in 50 minute sessions.
+In order to evaluate the model, they experimented with different threshold levels to discriminate between mastered and un-mastered knowledge components and used the final estimate of student knowledge in each category (mastered vs. not mastered) to predict their post-test results.
+
+\textit {Refraction} \cite{andersen2010gameplay} is another educational game for learning about fractions by splitting laser beams into fractional amounts to target spaceships and avoid asteroids. 
+Liu et al.~\cite{liu2013predicting} created an ensemble algorithm that combines elements of Markov models, player heuristic search, and collaborative filtering techniques with state-space clustering in order to predict player movements on the last game level based on the history of movements in previous game levels. 
+Lee et al. \cite{lee2014learning} extended the former framework by building a state-action graph and using feature selection techniques to reduce the number of features for each state. 
+To ensure extensibility, they also tested the framework on another game, \textit {DragonBox}, and reported improvement over \cite{liu2013predicting}.
+
+\textit {Quantum Spectre} is a more complex puzzle-style educational game designed for high school students to learn optics. 
+Eagle et al. \cite{eagle2015measuring} used interaction networks (IN) to visualize and derive insight into students' problem solving behavior and common misconceptions. 
+They used data from 195 students in 15 classes and created the full IN of every state and possible actions for each game level. 
+Next, they used clustering to reduce the state-action space into a high level visualization of how students progress through the puzzle and classify each student interaction into four categories: correct, placement error, rotation error, and puzzle error. 
+Finally, they picked a smaller set of students (n=10) and used a linear regression model to predict their post-test results.
+The results show a direct negative relationship between science-related game play errors and the post-test scores.
+
 \subsection{Results}
+
 In order to evaluate our regression model we decided to compare its performance against two baselines: 1) A regression model that uses success and failure of students in each game level as features and 2) A regression model that uses the normalized sequence lengths in each game level. 
 Our model was able to outperform both baselines in mean absolute error (MAE) and root mean squared error (RMSE). 
 Moreover, the correlation and Spearman $\rho$ of our predicted values with the true values were much higher than both baselines. 
@@ -642,6 +680,8 @@ This tells us that the difference between the sequence of student interactions i
 \end{figure*}
 
 \subsection{Discussion and Limitations}
+
+
 In this study we aimed to explore the effectiveness of data-driven methods for student modeling in educational games. 
 To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and suggested improvement over two  baselines.
 As reported in the results section, the improvement results were not statistically significant. We investigated this problem in more depth and we believe that the reason we could not achieve a significant improvement was mainly because we tested the algorithm on a small dataset.
@@ -671,7 +711,9 @@ Figure~\ref{fig:highhmm} represents the HMM for high-performing students.
 The three latent states, $S_{0-2}$ can be interpreted as sequential steps that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{MoveCombo\_{ClusterID}} until they successfully finish the game.
 On the other hand, low-performing students (Figure~\ref{fig:lowhmm}) do not necessarily follow the expected path and the probability of moving object into the outlier clusters (\texttt{MoveObject\_0 and MoveCombo\_0}) is also higher in each state for low-performing students.
 
-\section{Conclusion and Future Work}
+\section{Conclusions and Future Work}
+\label{sec:conclusion} 
+
 Modeling student behavior in open-ended environments such as educational games is an interesting and complex problem. 
 Particularly, data-driven models can be valuable tools for game designers, educators, and researchers for analyzing how students learn different skills by using their systems.
 In this paper, we presented a data analysis framework that is able to learn a model from game activity logs that is predictive of student proficiency with minimum reliance on expert knowledge about the game environment. 
