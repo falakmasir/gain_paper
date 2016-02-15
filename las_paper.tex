@@ -159,7 +159,7 @@ We present a novel data analysis pipeline, {Student Proficiency Inferrer from Ga
 Unlike prior work, \algname is a fully data-driven method that does not require costly domain knowledge engineering.
 Moreover, it produces a simple interpretable model that not only fits the data, but also predics learning outcomes.
 We validate our framework using data collected from students playing 11 educational mini-games.
-Our results suggest that \algname is can predict math assessments accurately on withheld test data (Correlation=0.55 , Spearman $\rho$=0.51).
+Our results suggest that \algname can predict math assessments accurately on withheld test data (Correlation=0.55, Spearman $\rho$=0.51).
 \end{abstract}
 
 \category{K.3.1}{Computer Uses in Education.}
@@ -184,17 +184,18 @@ Stealth assessment is also intended to reduce or eliminate test anxiety, while n
 
 A promising opportunity for invisible assessment is using log data collected from educational games.
 Unfortunately, engineering a system that interprets log data is costly and time-consuming.
-For example, Shute et al. ~\cite{shute2013stealth, shute2009melding}, relied extensively on domain expertise to define a \textit{Competency Model} in form of a Bayesian Network to describe the set of knowledge and skills involved in the learning environment.
+For example, Shute et al.~\cite{shute2013stealth, shute2009melding} relied extensively on domain expertise to define a \textit{Competency Model} in form of a Bayesian Network to describe the set of knowledge and skills involved in the learning environment.
 They also used feature engineering on the performance data to build an \textit{Evidence Model} that expresses how student interactions with the system constitute evidence about competency model variables.
 
 Our motivation is that invisible assessment from game data may become more accurate and cheaper to implement if the domain knowledge engineering could be automated by a data-driven process.
 Game data is often logged  in a format that we call a \textit{slot and filler} structure.
 In Table~\ref{tbl:log_example}, we show a simplified example of a real educational game log that uses slot and filler structure.
-Typically each action or event have a set of slots (properties).
+Typically each action or event has a set of slots (properties).
 %The slots are discrete sets of events that are initiated by the leaner.
 Each slot may accept zero to multiple fillers. 
 Each filler represents a property value of the slot.
-For example, a \texttt{Move Object} event  that represents the learner moving an object in the screen, may have an $x$ and $y$ coordinates as slots and the target position in two-dimensional space ($361, 82$) are the fillers.
+For example, a \texttt{Move Object} event  that represents the learner moving an object in the screen may have a $x$ and $y$ coordinates as slots and the target position in two-dimensional space ($361, 82$) are the fillers.
+\newline
 
 \begin{table}[tbh]
 	\begin{tabular}{@{}llll@{}}
@@ -211,11 +212,16 @@ For example, a \texttt{Move Object} event  that represents the learner moving an
 	\caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
 \end{table}
 
+%A wide range of machine learning problems in different domains (e.g. speech and language processing, biology, and vision) involve mapping sequences of inputs into some type of output.
+%The goal is to find a representation that can be used for describing, visualizing, and finding (dis)similarities between sequences.
+%Hidden Markov Models (HMMs) provide a probabilistic framework for modeling sequence data that has been successfully adapted in a wide range of applications~\cite{rabiner1989tutorial}.
+%However, they are often restricted to discrete or Gaussian observations and the latent state variable is 
 
-Conventional machine learning algorithms cannot input slot and filler data, as they  usually work with data structures called \textit{feature vectors}. 
-Traditional feature vector classifiers (like logistic regression or decision trees)  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, cannot  use slot and filler data as input. 
+  
+
+Standard predictive models (like logistic regression or decision trees)  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, often use a vector representation of features as input. 
 A vector representation requires mapping of observations onto a fixed number of features.
-It is not obvious how to best map events that may have a variable number or type of slots, or sequences of student actions that can be of an arbitrary length into a feature vector that needs to be of a predetermined dimension.
+It is not obvious how to best map the sequence of events (in slot-and-filler format) that may have a variable number or type of slots, or sequences of student actions that can be of an arbitrary length into a vector representation that needs to be of a predetermined dimension.
 
 In order to work around these limitations, researchers use the state-action graph of the game environment for extracting features. 
 States stand for different configurations of the game environment and actions represent different ways students can interact with the game environment in each state.
@@ -226,7 +232,7 @@ heuristics.
 
 In this paper, we propose \textit{Student PRoficiency INferrer from Game data} (SPRING), a novel data analysis pipeline that models game playing behavior.
 \algname first receives the interaction data in slot and filler format as input and generates a sequence of abstract observations by employing an unsupervised clustering method. 
-The next step of the pipeline employs non-parametric extensions of Hidden Markov Models (HMMs) in each game level to build a statistical representation that is generalizable across multiple game levels. 
+The next step of the pipeline employs non-parametric extensions of HMMs in each game level to build a statistical representation that is generalizable across multiple game levels. 
 The HMM models capture patterns of student interactions as sets of unobserved states, each state related to the abstract observations through a probability distribution. 
 Finally, the last stage of the pipeline builds a regression model using features extracted from the HMMs of each game level to predict the student post-test scores.
 We demonstrate the effectiveness of our approach on real student game playing data.
@@ -238,7 +244,7 @@ The more student data is available, the better parameter estimation we can perfo
 \section{Background}
 The potential of computer games for educational purposes has been of interest since nearly the beginning of video games. Unlike video games, which focus on creating an entertaining experience for the user, educational games require principles and strategies that engage students while maximizing their learning gain. However, games have produced mixed learning outcomes in the classroom \cite{harpstead2013search,mayo2009video} and studying student interactions is a crucial step toward understanding their learning process and improving the game environment in the future.
 
-There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. For example, \textit {Rumble Blocks} \cite{christel2012rumbleblocks} is a physics educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al. \cite{harpstead2013investigating}, used a two-dimensional context-free grammar to extract conceptual features from  logs of student play sessions. They used the extracted features to cluster students' solutions in order to measure how many students follow the designers' envisioned path.
+There have been numerous attempts among the educational research community to develop analytic methods and build predictive models based on the data from educational games. For example, \textit {Rumble Blocks} \cite{christel2012rumbleblocks} is a physics educational game designed to teach basic concepts of structural stability and balance to children in grades K-3 (ages 5-8 years old). Harpstead et al.~\cite{harpstead2013investigating} used a two-dimensional context-free grammar to extract conceptual features from  logs of student play sessions. They used the extracted features to cluster students' solutions in order to measure how many students follow the designers' envisioned path.
 
 \textit{Crystal Island} \cite{rowe2010integrating} is an educational 3D game environment for learning microbiology in middle school. 
 Rowe and Lester \cite{rowe2010modeling} used a hand-authored dynamic Bayesian network (DBN) to model student knowledge in four broad components: narrative, content, strategy, and solution knowledge. 
@@ -247,7 +253,7 @@ They used observations from 116 eighth-graders interacting with the game environ
 In order to evaluate the model, they experimented with different threshold levels to discriminate between mastered and un-mastered knowledge components and used the final estimate of student knowledge in each category (mastered vs. not mastered) to predict their post-test results.
 
 \textit {Refraction} \cite{andersen2010gameplay} is another educational game for learning about fractions by splitting laser beams into fractional amounts to target spaceships and avoid asteroids. 
-Liu et al. \cite{liu2013predicting}, created an ensemble algorithm that combines elements of Markov models, player heuristic search, and collaborative filtering techniques with state-space clustering in order to predict player movements on the last game level based on the history of movements in previous game levels. 
+Liu et al.~\cite{liu2013predicting} created an ensemble algorithm that combines elements of Markov models, player heuristic search, and collaborative filtering techniques with state-space clustering in order to predict player movements on the last game level based on the history of movements in previous game levels. 
 Lee et al. \cite{lee2014learning} extended the former framework by building a state-action graph and using feature selection techniques to reduce the number of features for each state. 
 To ensure extensibility, they also tested the framework on another game, \textit {DragonBox}, and reported improvement over \cite{liu2013predicting}.
 
@@ -263,14 +269,14 @@ The results show a direct negative relationship between science-related game pla
 \algname is designed in a way that can capture sequential decision making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge. 
 Our data analysis pipeline receives raw data of student interactions with the different levels of educational game in slot and filler format along with their post-test results and creates a regression model for predicting the post-test scores. 
 Algorithm~\ref{alg:spring} describes the three main steps of our pipeline: discretization,  sequence modeling, and regression.
-The discretization step transform slot and filler observations into multinomial indicators that are used as evidence for learning.
-The sequence modeling step, learns a representation from data in form of a Hidden Markov Model for high- and low-performing students.
+The discretization step transforms slot and filler observations into multinomial indicators that are used as evidence for learning.
+The sequence modeling step learns a representation from data in the form of a Hidden Markov Model for high- and low-performing students.
 The regression step, uses the likelihood of student sequences in each game level as a feature to predict the post-test results.
 We now explain the different steps in detail.
 
 \begin{algorithm}[ht]
 \begin{algorithmic}[1]
-\Require: A log file $\mathbf{L_{g,s,t}}$ of slot-and-filler structure for each game $g$ and student $s$ (indexed by time $t$), and results from a student assessment $y_s$, number of performance clusters $K$, number of latent states $H$.
+\Require: A log file $\mathbf{L_{g,s,t}}$ of slot-and-filler structure for each game $g$ and student $s$ (indexed by time $t$),  results from a student assessment $y_s$, number of performance clusters $K$, number of latent states $H$.
 \For {each  game $g$}  \tikzmark{disctop}
 	\For {each slot $z$}
 		\State $\mathbf{D_{g,s,t}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s,t}}, z$) 
@@ -333,12 +339,12 @@ and the student performance (\S~\ref{sec:student_disc}).
 
 Algorithm~\ref{alg:discretize} describes the method we use to discretize fillers.
 The input is time-ordered student interactions in slot-and-filler format for a single slot $z$ and game $g$.
-The purpose is to transform the slot and filler observations into a discrete (multinomial) observations appropriate for sequence modeling.
+The purpose is to transform the slot and filler observations into  discrete (multinomial) observations appropriate for sequence modeling.
 For example, consider the \texttt{Move Object} slot from Table~\ref{tbl:log_example}.
 We wish to transform the different possible fillers into discrete units.
 Figure~\ref{fig:screenshot} shows a screenshot of a minigame that generates  \texttt{Move Object} slots.
 The purpose of this game is for learners to move ice cubes from the mountain top onto the two designated areas to prevent the Yeti from crossing the wall.
-In Figure~\ref{fig:clustering} shows a scatterplot of the $x$ and $y$ fillers aggregating across 77 students.
+Figure~\ref{fig:clustering} shows a scatterplot of the $x$ and $y$ fillers aggregating across 77 students.
 
 \begin{figure}[ht]
  \centering
@@ -366,9 +372,9 @@ The specific clustering algorithm we used  for learning a \algname model is DBSC
 In our preliminary experiments we tried other unsupervised methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in advance.
 The time complexity of DBSCAN is $O(n \log n)$ (n = the number of data points) and there are recent parallelized implementations that are scalable \cite{patwary2012new,dai2012efficient}.
 
-Clustering algorithms, like DBSCAN, often can only discretize observations in the training dataset, and would not generalize to unseen fillers.
+Clustering algorithms like DBSCAN often can only discretize observations in the training dataset, and would not generalize to unseen fillers.
 To work around this limitation, we trained a classifier for transforming any filler into a cluster label. 
-In particular, we used a K-Nearest neighbor (K-NN, n=5) classifier because similar to DBSCAN, it uses a Euclidean distance function as a similarity metric.
+In particular, we used a K-Nearest neighbor (K-NN, n=5) classifier because, similar to DBSCAN, it uses a Euclidean distance function as a similarity metric.
 The classifier is trained to identify a cluster label using the fillers as predictors.
 The K-NN classifier might not be the best choice for fillers in the outlier cluster. 
 However, our preliminary experiments using cross-validation showed that it has enough discriminative power to distinguish the outlier fillers from other clusters.
@@ -378,7 +384,7 @@ However, our preliminary experiments using cross-validation showed that it has e
 \label{sec:student_disc}
 
 In order to find an interpretable model that describes the behavior of different groups of students, researchers often use unsupervised and non-parametric methods.
-However, since we are particularly trying to find patterns among students that is predictive of their post-test performance, we used the median of post-test scores to divide students into two groups. 
+However, since we are particularly trying to find patterns among students that are predictive of their post-test performance, we used the median of post-test scores to divide students into two groups. 
 In each game level, we place the students who received a post-test score below or equal to the median in the low-performing group and the students who received a post-test score higher than the median in the high-performing group.
 Due to the small number of students in our dataset, particularly in the later game levels, we only used two clusters. 
 We hypothesized that students in difference performance groups play the game differently. 
@@ -410,7 +416,7 @@ We use  a linear regression model for predicting the post-test scores:
 \hat {y_s}(\beta) =   \sum_g \beta_g \cdot d_{s,g}  + \beta_0
 \end{equation}
 
-Here, $\beta_0$ is just an intercept for the  model.  
+Here, $\beta_0$ is an intercept for the  model.  
 We optimized the parameters of the model using a 5-fold cross validation on our development set.
 We experimented with different regularization methods, but only report LASSO \cite{tibshirani1996regression} as it worked best in our preliminary comparisons:
 \begin{equation}
@@ -447,8 +453,8 @@ Our dataset consists of time-stamped interactions of 129 students in 11 game lev
 We did not use the data from one of the game levels due to technical issues.
 For 77 students, we also have post-test scores from a paper-based exam with 20 questions in the 3 skills of geometric measurement.
 The post-test score ranges from 0 to 18 (out of 20) with the mean equal to 7.81 and standard deviation of 4.36. 
-In total, there are 88,458 events recorded in the dataset from 1,510 game sessions, meaning that student tried some of the game levels for multiple times.
-Based on the ECD framework, beginning levels only involve area unit iteration skill and the other skills and related features are gradually added to the later game levels.
+In total, there are 88,458 events recorded in the dataset from 1,510 game sessions, meaning that students tried some of the game levels  multiple times.
+Based on the ECD framework, beginning levels only involve the area unit iteration skill and other skills and related features are gradually added to the later game levels.
 Figure \ref{fig:frequency} shows the frequency of different events in each game level. As depicted in Figure \ref{fig:frequency}, the student interactions with the system in all game levels is dominated by movements.
 
 \begin{figure}
@@ -465,7 +471,7 @@ Figure \ref{fig:frequency} shows the frequency of different events in each game 
 \end{figure}
 
 We only used the interactions of the students who participated in the post-test in our data analysis pipeline.
-Different attempts a student makes at a problem and the change of performance over time is a rich data source for inferring proficiency.
+Different attempts a student makes at a problem and the change of performance over time are a rich data source for inferring proficiency.
 However, due to the design of our experiment (predicting students' post-test scores) and the fact that there is only one post-test score for each student in our dataset, we decided to  only incorporate the first attempt (sequence of actions) in each game level in our analysis. Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level. 
 
 \subsection{Experimental Setup}
@@ -502,8 +508,8 @@ The best performing model however, learns the best number of states for each gam
 The $K=2$ here refers to the number of HMMs we learn for each game level: one for high-performing students and one for low-performing students. 
 
 In order to evaluate the significance of our results, we calculated the absolute difference between the true and predicted value for each student in our held-out set.
-We used paired onesided t-test (n=15) for judging the significance of the improvement in MAE and RMSE.
-Unfortunately, the improvement was not significant ($p=0.20$ the Success/Failure baseline and $p=0.26$ the Sequence Length baseline). Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and 95\% confidence interval.
+We used a paired one-sided t-test (n=15) for judging the significance of the improvement in MAE and RMSE.
+Unfortunately, the improvement was not statistically significant ($p=0.20$ the Success/Failure baseline and $p=0.26$ the Sequence Length baseline). Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and 95\% confidence interval.
 
 The regression model also provides us with an insight into how important each game level is in distinguishing between high- and low-performing students. Table \ref{tab:regrweights} shows the weights of each game level in the best performing model.
 As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screenshot Figure~\ref{fig:figurekracken}), has the highest weight in the regression model. 
@@ -543,11 +549,11 @@ This tells us that the difference between the sequence of student interactions i
 			\node[main node] (1) {S0};
 			
 			\node[main node] (3) [right=of 1, xshift=2cm, yshift=1cm]{S1};
-			\node[main node] (2) [below=of 3, yshift=-1.3cm, xshift=.5cm, fill=lightgray]{\texttt{UsedEsploda}};
+			\node[main node] (2) [below=of 3, yshift=-1.3cm, xshift=.5cm, fill=lightgray]{\texttt{UseEsploda}};
 			
 			\node[main node] (5) [right=of 3, xshift=3.5cm, yshift=-.5cm, fill=lightgray]{\texttt{MoveCombo\_0}};
 			\node[main node] (4) [above=of 5, yshift=1.5cm]{S2};
-			\node[main node] (6) [below=of 5, fill=lightgray]{\texttt{UsedGluumi}};
+			\node[main node] (6) [below=of 5, fill=lightgray]{\texttt{UseGluumi}};
 			\node[main node] (7) [below=of 6, fill=lightgray]{\texttt{MoveObject\_0}};
 			
 			\node[main node] (10) [right=of 4, fill=lightgray, xshift=3cm]{\texttt{MoveCombo\_4}};
@@ -591,13 +597,13 @@ This tells us that the difference between the sequence of student interactions i
 			\node[main node] (1) {S0};
 			
 			\node[main node] (3) [right=of 1, xshift=2cm, yshift=1cm]{S1};
-			\node[main node] (2) [below=of 3, yshift=-1.3cm, xshift=.5cm, fill=lightgray]{\texttt{UsedEsploda}};
+			\node[main node] (2) [below=of 3, yshift=-1.3cm, xshift=.5cm, fill=lightgray]{\texttt{UseEsploda}};
 			\node[main node] (13) [below=of 2, fill=lightgray]{\texttt{MoveObject\_0}};
 			
 			\node[main node] (5) [right=of 3, xshift=3.5cm, yshift=-.5cm, fill=lightgray]{\texttt{MoveCombo\_0}};
 			\node[main node] (4) [above=of 5, yshift=1.5cm]{S2};
 			\node[main node] (6) [below=of 5, fill=lightgray]{\texttt{MoveCombo\_5}};
-			\node[main node] (7) [below=of 6, fill=lightgray]{\texttt{UsedGluumi}};
+			\node[main node] (7) [below=of 6, fill=lightgray]{\texttt{UseGluumi}};
 			
 			\node[main node] (10) [right=of 4, fill=lightgray, xshift=3cm]{\texttt{MoveCombo\_4}};
 			\node[main node] (9) [above=of 10, fill=lightgray]{\texttt{MoveCombo\_3}};
