@@ -373,6 +373,7 @@
 	The specific clustering algorithm we used  for learning a \algname model is DBSCAN~\cite{ester1996density}.
 	In our preliminary experiments we tried other unsupervised methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in advance.
 	The time complexity of DBSCAN is $O(n \log n)$ (n = the number of data points) and there are recent parallelized implementations that are scalable \cite{patwary2012new,dai2012efficient}.
+	\newline
 	
 	Clustering algorithms like DBSCAN often can only discretize observations in the training dataset, and would not generalize to unseen fillers.
 	To work around this limitation, we trained a classifier for transforming any filler into a cluster label. 
@@ -509,10 +510,16 @@
 	The HMM with only one state ($H=1$) represents the model with no memory that only considers the distribution of different observations in a sequence (as a Gaussian Mixture Models) in order to demonstrate the effect of our discretization step.
 	The best performing model however, learns the best number of states for each game level based on the training examples and outperforms the model with only one state.
 	The $K=2$ here refers to the number of HMMs we learn for each game level: one for high-performing students and one for low-performing students. 
-	
-	In order to evaluate the significance of our results, we calculated the absolute difference between the true and predicted value for each student in our held-out set.
-	We used a paired one-sided t-test (n=15) for judging the significance of the improvement in MAE and RMSE.
-	Unfortunately, the improvement was not statistically significant ($p=0.20$ the Success/Failure baseline and $p=0.26$ the Sequence Length baseline). Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and 95\% confidence interval.
+
+	The correlation between true and predicted values is only statistically significant for our best-performing model, ($r=0.55$, $n=15$, and $p < 0.05$), but the other models show no statistical significance.
+	This suggests that the predicted scores of \algname ($K=2$) are positively correlated with the true assessment scores.
+	In order to evaluate the significance of improvements, we also calculated the absolute difference between the true and predicted post-test scores for all of the students based on each model.
+	We used a paired one-sided t-test (n=15) for judging the significance of improvement over the baselines.
+	However, we cannot reject the null hypothesis that the baselines have greater or equal MAE than \algname ($p=0.20$ over the Success/Failure baseline and $p=0.26$ over the Sequence Length baseline).
+
+	Our results suggests that eventhough there is a positive correlation between the true and \algname's predicted post-test scores, the improvement in terms of MAE is not conclusive. 
+	This effect is clearly observable in Table \ref{tab:results} where a 0.4 improvement in correlation over the first baseline resulted in 0.09 and 0.26 improvement over MAE and RMSE respectively.
+	Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and 95\% confidence interval.
 	
 	The regression model also provides us with an insight into how important each game level is in distinguishing between high- and low-performing students. Table \ref{tab:regrweights} shows the weights of each game level in the best performing model.
 	As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screenshot Figure~\ref{fig:figurekracken}), has the highest weight in the regression model. 
@@ -651,7 +658,6 @@
 	To demonstrate the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and suggested improvement over two  baselines.
 	As reported in the results section, the improvement results were not statistically significant. We investigated this problem in more depth and we believe that the reason we could not achieve a significant improvement was mainly because we tested the algorithm on a small dataset.
 	Our held-out set contains only 15 students and a few of them achieved poor performance results in the post-test while successfully finishing most of the game levels.
-	This effect is clearly observable in Table \ref{tab:results} where a 0.4 improvement in correlation over the first baseline resulted in 0.09 and 0.26 improvement over MAE and RMSE respectively. 
 	This observation could raise a question for the utility of similar data-driven models.
 	However, we believe that using a larger data set will lower the negative effect of such students in the future.
 	
@@ -675,7 +681,7 @@
 	Figure~\ref{fig:highhmm} represents the HMM for high-performing students. 
 	The three latent states, $S_{0-2}$ can be interpreted as sequential steps that students took for solving this problem. As illustrated in Figure~\ref{fig:highhmm}, high-performing students follow the expected path of using the \texttt{Esploda} tool in $S_0$, using the \texttt{Gluumi} tool in $S_1$, and then moving the composite objects into the designated areas \texttt{MoveCombo\_{ClusterID}} until they successfully finish the game.
 	On the other hand, low-performing students (Figure~\ref{fig:lowhmm}) do not necessarily follow the expected path and the probability of moving object into the outlier clusters (\texttt{MoveObject\_0 and MoveCombo\_0}) is also higher in each state for low-performing students.
-	
+
 	\section{Relation to Prior Work}
 	\label{sec:priorwork}
 	The potential of computer games for educational purposes has been of interest since nearly the beginning of video games. 
@@ -722,7 +728,8 @@
 	There are many possible directions for future work. On a lower level we can integrate the discretization and sequence modeling step by employing Hidden Markov Models that accepts slot and filler sequences as input (work in progress). On a higher level, instead of dividing students into two groups (high- and low-performing), we can use the HMM to cluster students \cite{bicego2003similarity,smyth1997clustering} into more groups that might be  more representative of different approaches students follow to solve each game level. We can also replace our regression model with a more powerful ensemble method that considers different subskills in order to integrate features of each game level to predict the post-test scores.
 	
 	We only used data from \textit{Alice in AreaLand} to evaluate our model. However, the model is designed in a way that can model sequences of student actions in other similar gaming environments that use slot-and-filler structures to log student interactions with the system. Finally, using our framework we will be able to build a model that detects incorrect strategies or common misconceptions that can be used in a dynamic hinting system to increase player engagement and learning.
-	\newline
+	
+	
 	\bibliographystyle{SIGCHI-Reference-Format}
 	\balance
 	\bibliography{references}
