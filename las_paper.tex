@@ -57,7 +57,7 @@
 	\draw [decoration={brace,amplitude=0.2em},decorate, thick, darkgray]
 	($(#3)!(#1.north)!($(#3)-(0,1)$)$) --  
 	($(#3)!(#2.south)!($(#3)-(0,1)$)$)
-	node [align=center, text width=2.5cm, pos=0.5, anchor=west] {#4};
+	node [align=left, text width=2.5cm, pos=0.5, anchor=west] {#4};
 	\end{tikzpicture}
 }%
 
@@ -272,9 +272,9 @@
 			\State Learn a model that predicts $y_s$  from $\phi_{g,s}$ 
 			\tikzmark{regbot}
 		\end{algorithmic}
-%		\AddNote{disctop}{discbot}{right}{\small{Discretization}}
-%		\AddNote{seqmodtop}{seqmodbot}{right}{\small{Sequence Model}}
-%		\AddNote{regtop}{regbot}{right}{\small{Feature Vector Model}}
+		\AddNote{disctop}{discbot}{right}{\scriptsize{Discretization}}
+		\AddNote{seqmodtop}{seqmodbot}{right}{\scriptsize{Sequence Model}}
+		\AddNote{regtop}{regbot}{right}{\scriptsize{Feature \\ Vector Model}}
 		\caption{The SPRING algorithm\label{alg:spring}}
 	\end{algorithm}
 	
@@ -282,7 +282,7 @@
 	
 	\subsection{Discretization}
 	We now describe how we discretize
-	the slot and fillers,  (\S~\ref{sec:filler_disc}) 
+	the slot and fillers  (\S~\ref{sec:filler_disc}) 
 	and the student performance (\S~\ref{sec:student_disc}).
 	
 	\subsubsection{Slot-Filler Discretization}
