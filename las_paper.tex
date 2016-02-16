@@ -1,5 +1,12 @@
 \documentclass{sigchi}
 
+\toappear{\scriptsize Permission to make digital or hard copies of all or part of this work for personal or classroom use is granted without fee provided that copies are not made or distributed for profit or commercial advantage and that copies bear this notice and the full citation on the first page. Copyrights for components of this work owned by others than ACM must be honored. Abstracting with credit is permitted. To copy otherwise, or republish, to post on servers or to redistribute to lists, requires prior specific permission and/or a fee. Request permissions from permissions@acm.org. \\
+	{\emph{L@S 2016}}, April 25--26, 2016, Edinburgh, UK. \\
+	Copyright \copyright~2016 ACM 978-1-4503-3726-7/16/04\ ...\$15.00. \\
+	DOI: \url{http://dx.doi.org/10.1145/2876034.2876038}}
+\clubpenalty=10000 
+\widowpenalty = 10000
+
 % Load basic packages
 \usepackage{balance}  % to better equalize the last page
 \usepackage{graphics} % for EPS, load graphicx instead 
@@ -114,39 +121,26 @@
 	
 	
 	\title{\plaintitle}
-	% \alignauthor{\mbox{\hspace{-4em}Mohammad H. Falakmasir$^{\star, \#} $\;\; Jos\'{e} P. Gonz\'{a}lez-Brenes$^\star$ \;\; Geoffrey J. Gordon$^\S$ \;\; Kristen E. DiCerbo$^\star$}\\
+	
 	\numberofauthors{4}
 	\author
 	{%
-		\alignauthor{Mohammad Falakmasir\titlenote{Part of the research  was conducted while the author visited Pearson.}\\
-			\affaddr{Intelligent Systems Program} \\
+		\alignauthor{\mbox{\hspace{-1.85em}Mohammad H. Falakmasir$^{\star, \#} $\;\;\; Jos\'{e} P. Gonz\'{a}lez-Brenes$^\star$ \;\;\; Geoffrey J. Gordon$^\S$ \;\;\; Kristen E. DiCerbo$^\star$}\\
+			\affaddr{$^\star$School Research}\\
+			\affaddr{Pearson}\\
+			\email{\{jose.gonzalez-brenes, kristen.dicerbo\}@pearson.com }\\
+		}
+		\alignauthor{\vphantom{Mohamamad Jose}
+			\affaddr{$^\#$Intelligent Systems Program} \\
 			\affaddr{University of Pittsburgh}\\
 			\email{falakmasir@pitt.edu}\\
 		}
-		\alignauthor{Jos\'{e} P. Gonz\'{a}lez-Brenes\\
-			\affaddr{School Research}\\
-			\affaddr{Pearson}\\
-			\email{jose.gonzalez-brenes@pearson.com }\\
-		}
-		\and
-		\alignauthor{ Geoffrey J. Gordon\\
-			\affaddr{Machine Learning}\\
+		\alignauthor{\vphantom{Mohamamad Jose}
+			\affaddr{$^\S$Machine Learning}\\
 			\affaddr{Carnegie Mellon University} 
 			\email{ggordon@cs.cmu.edu}\\
 		}
-		\alignauthor{Kristen E. DiCerbo\\
-			\affaddr{School Research}\\
-			\affaddr{Pearson}\\
-			\email{kristen.dicerbo@pearson.com }\\
-		} 
 	}
-	
-	
-	\CopyrightYear{2016} 
-	\setcopyright{acmcopyright}
-	\conferenceinfo{L@S 2016,}{April 25-26, 2016, Edinburgh, Scotland Uk}
-	\isbn{978-1-4503-3726-7/16/04}\acmPrice{\$15.00}
-	\doi{http://dx.doi.org/10.1145/2876034.2876038}
 	
 	
 	\maketitle
@@ -164,8 +158,8 @@
 		Our results suggest that \algname can predict math assessments accurately on withheld test data (Correlation=0.55, Spearman $\rho$=0.51).
 	\end{abstract}
 	
-	\category{K.3.1}{Computer Uses in Education.}
-	{}
+%	\category{K.3.1}{Computer Uses in Education.}
+%	{}
 	\keywords{Educational Games, Student Modeling, Stealth Assessment}
 	
 	\section{Introduction}
@@ -175,14 +169,12 @@
 	For example, a  survey of the current state of testing in America revealed that students are taking an average of 113 standardized tests between pre-K and highschool~\cite{lazarin2014testing}. 
 	For these reasons, it is not surprising that both politicians and the general population have been weighing in on the question of whether students are being tested too much~\cite{lazarin2014testing}.
 	
-	%Learning and succeeding is not easily measured by solving constrained tasks and answering verbal or multiple-choice questions.
-	%Advancements in educational and psychological measurements allows us to diagnose student competencies more accurately and effectively at various levels during the course of learning.
+	Learning and succeeding is not easily measured by solving constrained tasks and answering verbal or multiple-choice questions.
+	Advancements in educational and psychological measurements allows us to diagnose student competencies more accurately and effectively at various levels during the course of learning.
 	According to Evidence Centered Design (ECD)~\cite{mislevy2012design}, the goal of assessment is to characterize the evidence regarding claims one wants to make about the competencies of individuals or groups of students.
 	Therefore, the assessment process involves identifying, organizing, or creating activities for students so that we may observe that evidence.
 	An alternative to traditional summative assessment in computer based learning environments is invisible (or stealth) assessment~\cite{shute2013stealth}.
 	Invisible assessment aims to blur the distinction between assessment and learning.
-	%,
-	%by including an evidence-centered assessment design and formative feedback to support learning.
 	
 	
 	Analyzing log data collected from students playing educational games is a  promising way to perform  invisible assessment of student abilities.
@@ -208,7 +200,6 @@
 	Game data is often logged  in a format that we call a \textit{slot and filler} structure.
 	In Table~\ref{tbl:log_example}, we show a simplified example of a real educational game log that uses slot and filler structure.
 	Typically each action or event has a set of slots (properties).
-	%The slots are discrete sets of events that are initiated by the leaner.
 	Each slot may accept zero to multiple fillers. 
 	Each filler represents a property value of the slot.
 	For example, a \texttt{Move Object} event  that represents the learner moving an object in the screen may have a $x$ and $y$ coordinates as slots and the target position in two-dimensional space ($361, 82$) are the fillers.
@@ -229,12 +220,6 @@
 		\caption{An example fragment of a log from an educational game. \label{tbl:log_example}}
 	\end{table}
 	
-	%A wide range of machine learning problems in different domains (e.g. speech and language processing, biology, and vision) involve mapping sequences of inputs into some type of output.
-	%The goal is to find a representation that can be used for describing, visualizing, and finding (dis)similarities between sequences.
-	%Hidden Markov Models (HMMs) provide a probabilistic framework for modeling sequence data that has been successfully adapted in a wide range of applications~\cite{rabiner1989tutorial}.
-	%However, they are often restricted to discrete or Gaussian observations and the latent state variable is 
-	
-	
 	Analyzing slot and filler data is difficult.
 	Some general-purpose predictive models (like logistic regression or decision trees)  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, often use a vector representation of features as input. 
 	A vector representation requires mapping of observations onto a fixed number of features.
@@ -251,18 +236,9 @@
 	\algname transforms the slot and filler data to sequences that can be modeled with Hidden Markov Models.
 	It then extracts features from the sequences, and uses them in a regression model to predict the score of the traditional assessment.
 	After this, \algname is able to predict assessment performance of students by just observing their game activity as described by their slot and filler log.
-	
-	\begin{comment}
-	as input and generates a sequence of abstract observations by employing an unsupervised clustering method. 
-	The next step of the pipeline employs non-parametric extensions of HMMs in each game level to build a statistical representation that is generalizable across multiple game levels. 
-	The HMM models capture patterns of student interactions as sets of unobserved states, each state related to the abstract observations through a probability distribution. 
-	Finally, the last stage of the pipeline builds a regression model using features extracted from the HMMs of each game level to predict the student post-test scores.
-	We demonstrate the effectiveness of our approach on real student game playing data.
-	The method is purely data-driven and learns parameters from student data without assuming a model. 
-	We assume that high- and low-performing students interact differently with the game environment.
-	The more student data is available, the better parameter estimation we can perform and the learned HMM as a graphical model can be used in post-hoc interpretations by domain experts to gain insight into students' interaction patterns.
-	\end{comment}
-	
+	\newline
+	\newline
+	\newline
 	
 	
 	\section{SPRING Algorithm}
@@ -296,9 +272,9 @@
 			\State Learn a model that predicts $y_s$  from $\phi_{g,s}$ 
 			\tikzmark{regbot}
 		\end{algorithmic}
-		\AddNote{disctop}{discbot}{right}{\small{Discretization}}
-		\AddNote{seqmodtop}{seqmodbot}{right}{\small{Sequence Model}}
-		\AddNote{regtop}{regbot}{right}{\small{Feature Vector Model}}
+%		\AddNote{disctop}{discbot}{right}{\small{Discretization}}
+%		\AddNote{seqmodtop}{seqmodbot}{right}{\small{Sequence Model}}
+%		\AddNote{regtop}{regbot}{right}{\small{Feature Vector Model}}
 		\caption{The SPRING algorithm\label{alg:spring}}
 	\end{algorithm}
 	
@@ -423,11 +399,11 @@
 	Here, $\beta_0$ is an intercept for the  model.  
 	We optimized the parameters of the model using a 5-fold cross validation on our development set.
 	We experimented with different regularization methods, but only report LASSO \cite{tibshirani1996regression} as it worked best in our preliminary comparisons:
+
 	\begin{equation}
 	\beta^* = \argmin_\beta || y_s - \hat{y_s}(\beta)  ||_2 + \lambda \cdot || \beta ||_1
 	\end{equation}
-	
-	
+			
 	\section{Empirical Evaluation}
 	\label{sec:experiments}
 	
@@ -451,7 +427,6 @@
 	There is no limit for completing a game level regarding time or number of actions students may execute. 
 	The students press the \textit {Go Alice} button (bottom left corner of Figure~\ref{fig:figurekracken}) if they deem their performance to be satisfactory for \textit {Alice} to proceed. 
 	Based on the covered area and the arrangement of the tiles, they either advance to the next level or receive a feedback and stay in the same level.
-	\newline
 	
 	\subsection{Dataset} 
 	Our dataset consists of time-stamped interactions of 129 students in 11 game levels.
@@ -469,16 +444,16 @@
 	\end{figure}
 	
 	
+	We only used the interactions of the students who participated in the post-test in our data analysis pipeline.
+	Different attempts a student makes at a problem and the change of performance over time are a rich data source for inferring proficiency.
+	However, due to the design of our experiment (predicting students' post-test scores) and the fact that there is only one post-test score for each student in our dataset, we decided to  only incorporate the first attempt (sequence of actions) in each game level in our analysis. Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level. 
+
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.9\columnwidth]{figures/boxplot.pdf}
 		\caption{Boxplot of Sequence Length in Each Game Level}~\label{fig:boxplot}
 	\end{figure}
-	
-	We only used the interactions of the students who participated in the post-test in our data analysis pipeline.
-	Different attempts a student makes at a problem and the change of performance over time are a rich data source for inferring proficiency.
-	However, due to the design of our experiment (predicting students' post-test scores) and the fact that there is only one post-test score for each student in our dataset, we decided to  only incorporate the first attempt (sequence of actions) in each game level in our analysis. Figure \ref{fig:boxplot} shows the boxplot of sequence length in each game level. 
-	
+		
 	\subsection{Experimental Setup}
 	First we divide students into two groups, one (80\%) for training and development purposes and the other (20\%) for test and verification.
 	In the discretization phase, we transformed the log data from slot-and-filler structures for each game level into sequences of multinomial variables that can be used as evidence for learning for each student.
@@ -735,7 +710,9 @@
 	Next, they used clustering to reduce the state-action space into a high level visualization of how students progress through the puzzle and classify each student interaction into four categories: correct, placement error, rotation error, and puzzle error. 
 	Finally, they picked a smaller set of students (n=10) and used a linear regression model to predict their post-test results.
 	The results show a direct negative relationship between science-related game play errors and the post-test scores.
-	
+	Constructing the full interaction network for each game level 
+	can easily become intractable for complex games such as \textit{Alice in AreaLand}. Moreover, integrating results from multiple game levels is not straight forward since each game level has its own state-action graph and further engineering is required to extract features that are generalizable across game levels. 
+
 	\section{Conclusions and Future Work}
 	\label{sec:conclusion} 
 	
