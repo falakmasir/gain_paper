@@ -411,20 +411,20 @@
 	For each student $s$ in each game level $g$, we calculate the difference between ($d_{s,g}$) the likelihood of belonging to the high- and low-performing group.
 	We calculate this likelihood by estimating the Forward-Backward probabilities  on each student sequence of actions  based on the two HMMs parameter we estimated (whether the student is in the high performing group or in the low performing group) and using a hyperbolic tangent function in order to convert it to a value between -1 and 1: 
 	\begin{equation}
-		d_{s,g} = tanh[ K * (\theta_{g, \text{high}} - \theta_{g, \text{low}})]
+	d_{s,g} = tanh[ K * (\theta_{g, \text{high}} - \theta_{g, \text{low}})]
 	\end{equation}
 	
 	We use  a linear regression model for predicting the post-test scores:
 	
 	\begin{equation}
-		\hat {y_s}(\beta) =   \sum_g \beta_g \cdot d_{s,g}  + \beta_0
+	\hat {y_s}(\beta) =   \sum_g \beta_g \cdot d_{s,g}  + \beta_0
 	\end{equation}
 	
 	Here, $\beta_0$ is an intercept for the  model.  
 	We optimized the parameters of the model using a 5-fold cross validation on our development set.
 	We experimented with different regularization methods, but only report LASSO \cite{tibshirani1996regression} as it worked best in our preliminary comparisons:
 	\begin{equation}
-		\beta^* = \argmin_\beta || y_s - \hat{y_s}(\beta)  ||_2 + \lambda \cdot || \beta ||_1
+	\beta^* = \argmin_\beta || y_s - \hat{y_s}(\beta)  ||_2 + \lambda \cdot || \beta ||_1
 	\end{equation}
 	
 	
