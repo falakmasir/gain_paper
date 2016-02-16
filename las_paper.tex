@@ -487,10 +487,28 @@
 	
 	\subsection{Results}
 	
-	In order to evaluate our regression model we decided to compare its performance against two baselines: 1) A regression model that uses success and failure of students in each game level as features and 2) A regression model that uses the normalized sequence lengths in each game level. 
-	Our model was able to outperform both baselines in mean absolute error (MAE) and root mean squared error (RMSE). 
-	Moreover, the correlation and Spearman $\rho$ of our predicted values with the true values were much higher than both baselines. 
-	Table \ref{tab:results} shows the results.
+
+	We evaluate two implementations of SPRING, each of them using two ($K=2$) HMMs for each game level: one for high-performing students and one for low-performing students:
+	\begin{itemize}
+	 \item \algname ($H=1$)  uses an HMM with only one hidden state is a model with no memory (no temporal information).
+	 Here, we only consider the distribution of different observations in a sequence (as a Gaussian Mixture Models) in order to demonstrate the effect of our discretization step.
+	\item \algname ($H^*$) learns the best number of states for each game level based on the training examples using a Hierarchical Dirichlet Prior~\cite{fox2008hdp}.
+	\end{itemize} 
+	
+	Additionally, we evaluate two baseline methods:
+	\begin{itemize}
+	\item Success / Failure: A regression model with eleven binary features. Each feature represents whether a student  successfully passed each of the 11 different mini-games on the first attempt.
+	\item Sequence Length: A regression model that uses the normalized  \hl{What is normalized?} sequence lengths in each game level. 
+	\end{itemize}
+	
+		
+	Table \ref{tab:results} summarizes our results.
+	We used each method to predict the students in the test set's  scores. 
+	We compare the predictions to true scores using popular evaluation metrics:
+	 Pearson product-moment correlation coefficient ($R$), Spearman rank correlation $\rho$, mean absolute error (MAE) and root mean squared error (RMSE). 
+	 The best performing model according to all of the metrics is \algname~$H^*$.
+	%Moreover, the correlation and Spearman $\rho$ of our predicted values with the true values were much higher than both baselines. 
+
 	
 	\begin{table}[tbh]
 		\centering
@@ -501,26 +519,28 @@
 			Success / Failure                                                      & 0.02                                                     & 0.16                                                 & 3.21                                                          & 4.08 \\
 			\algname ($K=2, H=1$)                                                                                                        & 0.17                                                 &   0.25                                                        &
 			3.60 & 3.10 \\ 
-			\textbf{\algname ($K=2$)}                                                      & \textbf{0.55}                                                     & \textbf{0.51}                                                 & \textbf{2.84}                                                          & \textbf{3.35} \\ \bottomrule
+			\textbf{\algname ($K=2, H^*$)}                                                      & \textbf{0.55}                                                     & \textbf{0.51}                                                 & \textbf{2.84}                                                          & \textbf{3.35} \\ \bottomrule
 		\end{tabular}
 		\caption{The results of predicting post-test scores using three different feature sets.}~\label{tab:results}	
 	\end{table}
 	
-	In Table \ref{tab:results} we reported two versions of the \algname algorithm. 
-	The HMM with only one state ($H=1$) represents the model with no memory that only considers the distribution of different observations in a sequence (as a Gaussian Mixture Models) in order to demonstrate the effect of our discretization step.
-	The best performing model however, learns the best number of states for each game level based on the training examples and outperforms the model with only one state.
-	The $K=2$ here refers to the number of HMMs we learn for each game level: one for high-performing students and one for low-performing students. 
 
-	The correlation between true and predicted values is only statistically significant for our best-performing model, ($r=0.55$, $n=15$, and $p < 0.05$), but the other models show no statistical significance.
-	This suggests that the predicted scores of \algname ($K=2$) are positively correlated with the true assessment scores.
-	In order to evaluate the significance of improvements, we also calculated the absolute difference between the true and predicted post-test scores for all of the students based on each model.
-	We used a paired one-sided t-test (n=15) for judging the significance of improvement over the baselines.
-	However, we cannot reject the null hypothesis that the baselines have greater or equal MAE than \algname ($p=0.20$ over the Success/Failure baseline and $p=0.26$ over the Sequence Length baseline).
+	The baselines and \algname have positive correlation with the true values.
+	However, the correlation is statistically significant only for \algname $H^*$ (one-sided $t$-test: $r=0.55$, $n=15$, and $p < 0.05$), because we cannot reject  the null hypothesis in the other models.
+	This suggests that the predicted scores of \algname $H^*$ are positively correlated with the true assessment scores.
+	
+	We also calculated the absolute difference between the true and predicted post-test scores for all of the students based on each model.
+	We used a paired one-sided $t$-test (n=15) for judging the significance of improvement over the baselines.
+	We cannot reject the null hypothesis that the baselines outperform SPRING \algname ($p=0.20$ over the Success/Failure baseline and $p=0.26$ over the Sequence Length baseline).
 
 	Our results suggests that eventhough there is a positive correlation between the true and \algname's predicted post-test scores, the improvement in terms of MAE is not conclusive. 
-	This effect is clearly observable in Table \ref{tab:results} where a 0.4 improvement in correlation over the first baseline resulted in 0.09 and 0.26 improvement over MAE and RMSE respectively.
-	Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and 95\% confidence interval.
+	This effect is clearly observable in Table \ref{tab:results} where a 0.4 improvement in correlation over the first baseline resulted in 0.09 and 0.26 improvement over MAE and RMSE respectively. 
+	Depending on which evaluation metric we use, our results may show statistical significance.
+	It is unclear which evaluation metric is better for our application.
+	Future research could investigate how to evaluate invisible assessment systems, as well as replicate our results with larger datasets to see if the observed trend continues.
 	
+	
+	Figure~\ref{fig:regression} shows the true values vs. predicted values using LASSO regression along with the regression line and 95\% confidence interval.
 	The regression model also provides us with an insight into how important each game level is in distinguishing between high- and low-performing students. Table \ref{tab:regrweights} shows the weights of each game level in the best performing model.
 	As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screenshot Figure~\ref{fig:figurekracken}), has the highest weight in the regression model. 
 	This tells us that the difference between the sequence of student interactions in this game level has the highest factor in distinguishing between high- and low-performing students.
