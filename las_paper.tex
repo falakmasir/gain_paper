@@ -240,13 +240,14 @@
 	A vector representation requires mapping of observations onto a fixed number of features.
 	It is not obvious how to best map the sequence of events (in slot-and-filler format) that may have a variable number or type of slots into feature vectors  that need to be of a predetermined dimension.
 	
-	Machine learning algorithms that are able to work with data that is not formulated as feature vectors include kernel methods and graphical models.
+	Machine learning algorithms that are able to work with data that is not represented as feature vectors include kernel methods and graphical models.
 	To the extent of our knowledge, there are no kernels designed specifically for slot and filler structures.
 	Popular general-purpose graphical models, such as Markov Models, and Hidden Markov Models (HMM), cannot be readily used for slot and filler data because the dimension of each time step is variable (each slot may take a different number of fillers).
 	On the other had,  \textit{ad hoc} graphical models have  been proposed for mining specific games.
 	However, these graphical models were tailored by subject matter experts, and do not generalize across different games \cite{rowe2010integrating}.
 	
-	To learn \algname model, we need (i) interaction data in slot and filler format collected from students playing educational games and (ii) their results in  traditional assessments.
+	 \algname models slot and filler data for educational games when domain knowledge is too expensive or cumbersome to collect.
+	 To learn a \algname model, we need (i) logs  from students playing educational games, (ii) and  their results in  traditional assessments.
 	\algname transforms the slot and filler data to sequences that can be modeled with Hidden Markov Models.
 	It then extracts features from the sequences, and uses them in a regression model to predict the score of the traditional assessment.
 	After this, \algname is able to predict assessment performance of students by just observing their game activity as described by their slot and filler log.
