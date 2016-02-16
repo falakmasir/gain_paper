@@ -1085,7 +1085,7 @@
 %% suitably redefined for LaTeX2e
 %% END CHANGES
 %\setcounter{secnumdepth}{3}
-\setcounter{secnumdepth}{-2} % DLC
+\setcounter{secnumdepth}{3} % DLC
 \def\part{%
     \@startsection{part}{9}{\z@}{-10\p@ \@plus -4\p@ \@minus -2\p@}
         {4\p@}{\normalsize\@ucheadtrue}%
