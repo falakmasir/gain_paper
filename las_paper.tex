@@ -488,7 +488,7 @@
 	\subsection{Results}
 	
 
-	We evaluate two implementations of SPRING, each of them using two ($K=2$) HMMs for each game level: one for high-performing students and one for low-performing students:
+	We evaluate two implementations of SPRING, each of them using two ($K=2$) HMMs for each game level--- one for high-performing students and one for low-performing students:
 	\begin{itemize}
 	 \item \algname ($H=1$)  uses an HMM with only one hidden state is a model with no memory (no temporal information).
 	 Here, we only consider the distribution of different observations in a sequence (as a Gaussian Mixture Models) in order to demonstrate the effect of our discretization step.
@@ -498,12 +498,12 @@
 	Additionally, we evaluate two baseline methods:
 	\begin{itemize}
 	\item Success / Failure: A regression model with eleven binary features. Each feature represents whether a student  successfully passed each of the 11 different mini-games on the first attempt.
-	\item Sequence Length: A regression model that uses the normalized  \hl{What is normalized?} sequence lengths in each game level. 
+	\item Sequence Length: A regression model that uses the normalized sequence lengths in each game level. 
 	\end{itemize}
 	
 		
 	Table \ref{tab:results} summarizes our results.
-	We used each method to predict the students in the test set's  scores. 
+	We use each method to predict the students the assessment score of the students in the test set.
 	We compare the predictions to true scores using popular evaluation metrics:
 	 Pearson product-moment correlation coefficient ($R$), Spearman rank correlation $\rho$, mean absolute error (MAE) and root mean squared error (RMSE). 
 	 The best performing model according to all of the metrics is \algname~$H^*$.
@@ -531,7 +531,7 @@
 	
 	We also calculated the absolute difference between the true and predicted post-test scores for all of the students based on each model.
 	We used a paired one-sided $t$-test (n=15) for judging the significance of improvement over the baselines.
-	We cannot reject the null hypothesis that the baselines outperform SPRING \algname ($p=0.20$ over the Success/Failure baseline and $p=0.26$ over the Sequence Length baseline).
+	We cannot reject the null hypothesis that the baselines are as good, or better than  \algname ($p=0.20$ over the Success/Failure baseline and $p=0.26$ over the Sequence Length baseline).
 
 	Our results suggests that eventhough there is a positive correlation between the true and \algname's predicted post-test scores, the improvement in terms of MAE is not conclusive. 
 	This effect is clearly observable in Table \ref{tab:results} where a 0.4 improvement in correlation over the first baseline resulted in 0.09 and 0.26 improvement over MAE and RMSE respectively. 
