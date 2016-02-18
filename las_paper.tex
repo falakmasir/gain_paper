@@ -199,9 +199,10 @@
 	\label{sec:game_data}
 	Game data is often logged  in a format that we call a \textit{slot and filler}.
 	In Table~\ref{tbl:log_example}, we show a simplified example of a real educational game log that uses slot and filler structure.
-	Typically each action or event has a set of slots (properties).
-	Each slot may accept zero to multiple fillers. 
+	The Event Name column lists a number action or events that have been logged.
+	For each event, there is a number a set of slots (properties) that further describe the event.
 	Each filler represents a property value of the slot.
+	In the context of this paper, we assume that each slot takes exactly one filler.
 	For example, a \texttt{Move Object} event  that represents the learner moving an object on the screen may have $x$ and $y$ coordinates as slots and the target position in two-dimensional space ($361, 82$) as the fillers.
 	\newline
 	
@@ -223,14 +224,14 @@
 	Analyzing slot and filler data is difficult.
 	Some general-purpose predictive models (like logistic regression or decision trees)  that are used in off-the-shelf data mining packages, such as Weka \cite{hall2009weka}, use a vector representation of features as input. 
 	A vector representation requires mapping of observations onto a fixed number of features.
-	It is not obvious how to best map the sequence of events (in slot-and-filler format)  into feature vectors.
-	Feature vectors need to be of a predetermined dimension, and a game log may have a variable number of slots.
+	It is not obvious how to best map the sequence of events (with slot and filler modifiers)  into feature vectors.
+	Feature vectors need to be of a predetermined dimension, and a game log may have a variable number of events and slots.
 	
 	Machine learning algorithms that are able to work with data that is not represented as feature vectors include kernel methods and graphical models.
-	Popular general-purpose graphical models, such as Bayesian Networks and Hidden Markov Models (HMM), allow structure learning from sequential data with a variable number of events.
+	Popular general-purpose graphical models, such as Hidden Markov Models (HMM), allow structure learning from sequential data with a variable number of events.
 	However, these models usually require input observations with the same number of dimensions for each time step.
-	This is not clear how to transform observations when the number of fillers can vary for different slots.
-	For example, in Table~\ref{tbl:log_example}, the \texttt{Move Object} requires fillers with 2 dimensions, while the \texttt{Game Start} has no fillers.
+	It is not clear how to transform observations when the number of slots can vary for different events.
+	For example, in Table~\ref{tbl:log_example}, the \texttt{Move Object} requires  2 slots, while the \texttt{Game Start} has no slots.
 	On the other hand, \textit{ad hoc} graphical models have  been proposed for mining specific games.
 	However, these graphical models were tailored by subject matter experts and do not generalize across different games \cite{rowe2010integrating}.
 	
@@ -246,10 +247,12 @@
 	
 	\algname is designed to capture the sequential decision making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge. 
 	Our data analysis pipeline receives raw data of student interactions in slot and filler format and extracts features to build a model that predicts post-test scores from game playing data.
+	\algname assumes that an event  is always described with the same set of slots.
+	For example, an event such as  \texttt{Move Object}, always would be described with $x$ and $y$ slots.
 
 	\begin{algorithm}[ht]
 		\begin{algorithmic}[1]
-			\Require: A log file $\mathbf{L_{g,s,t}}$ of slot and filler structure for each game $g$ and student $s$ (indexed by time $t$),  results from a student assessment $y_s$, number of performance clusters $K$, number of latent states $H$.
+			\Require: A log file $\mathbf{L_{g,s,t}}$ of events (with slot and fillers) for each game $g$ and student $s$ (indexed by time $t$),  results from a student assessment $y_s$, number of performance clusters $K$, number of latent states $H$.
 			\For {each  game $g$}  \tikzmark{disctop}
 			\State $\mathbf{D_{g,s,t}} \leftarrow$  Discretize\_Fillers($\mathbf{L_{g,s,t}}$) 
 			\State  $\langle s, c \rangle \leftarrow$  Cluster\_Students($y_s, K$)  \tikzmark{discbot}
@@ -271,7 +274,7 @@
 	\end{algorithm}
 	
 	Procedure~\ref{alg:spring} describes the three main steps of our pipeline: discretization,  sequence modeling, and feature vector modeling.
-	The discretization step transforms slot and filler observations into multinomial indicators that are used as evidence for learning.
+	The discretization step transforms  filler observations into multinomial indicators that are used as evidence for learning.
 	The sequence modeling step learns a representation from data in the form of a Hidden Markov Model for high- and low-performing students.
 	The feature vector modeling step uses the likelihood of student sequences in each game level as a feature to predict the post-test results.
 	We now explain the different steps in detail.
@@ -285,39 +288,7 @@
 	\subsubsection{Slot-Filler Discretization}
 	\label{sec:filler_disc}
 	
-	\begin{algorithm}[ht]
-		\begin{algorithmic}[1]
-			\Require: $L_{g,s,t}$, sequence of slot-and-filler observations in game level $g$
-			\Procedure{Discretize\_Fillers}{$\mathbf{L_{g,s,t}}$}
-			\State {$\mathbf{Z} \leftarrow$  enumerate\_slots($\mathbf{L_{g,s,t}}$)}
-			\For{each slot $z$}
-				\State{$\mathbf{F_{z} } \leftarrow$  get\_fillers($\mathbf{L_{g,s,t}}$)}
-				\State{ $\langle \mathbf{F_{z}}$ , clustersIDs   $\rangle \leftarrow$ Cluster($\mathbf{F_{z}}$) } 
-				\State{model  $\leftarrow$ learn\_classifier($\mathbf{F_{z}}$, clustersIDs) }
-			\EndFor
-
-			\State
-			\For{each student $s'$}	
-				\For{each time step $t'$}
-					\If {$z$ == slot($L_{g,s',t'}$)}
-						\State { $\hat f \leftarrow$  model.predict(filler($ L_{g,s',t'} $)) }
-						\State {$d  \leftarrow $ \text{concat}(z, $\hat f$) }
-						\State{$\mathbf{D_{g,s',t'}} \leftarrow  d$} 
-				\EndIf
-			\EndFor
-			\EndFor
-			\State \Return{ $\mathbf{D}_{g,s,t}$ }
-			\EndProcedure
-			
-		\end{algorithmic}
-		\caption{The Discretization Step of \algname \label{alg:discretize}}
-	\end{algorithm}
-	
-
-	Procedure~\ref{alg:discretize} describes the method we use to discretize fillers for each game.
-	The input is time-ordered student interactions in slot-and-filler format for a single game $g$.
-	The purpose is to transform the slot and filler events into  discrete (multinomial) observations appropriate for sequence modeling.
-	For example, consider the \texttt{Move Object} event from Table~\ref{tbl:log_example}.
+	Consider the \texttt{Move Object} event from Table~\ref{tbl:log_example}.
 	We wish to transform the different possible fillers into discrete units.
 	Figure~\ref{fig:screenshot} shows a screenshot of a minigame that generates  \texttt{Move Object} events.
 	The purpose of this game is for learners to move ice cubes from the mountain top onto the two designated areas to prevent the Yeti from crossing the wall.
@@ -337,13 +308,51 @@
 		\end{subfigure}
 		\caption{Analysis of the  \texttt{Move Object} slots and fillers from the \textit{None Shall Pass!} mini game.\label{fig:figurecluster}}
 	\end{figure}
+
+
 	
-	In order to transform the slot and filler events into discrete observations, we use an unsupervised clustering algorithm for the fillers of each slot.
-	For example, in Figure~\ref{fig:clustering}, we have three clusters, cluster one and two (red and yellow respectively) that represent frequent movements, and cluster zero (black) that represents ``outlier'' movements.
+	\begin{algorithm}[ht]
+		\begin{algorithmic}[1]
+			\Require: $L_{g,s,t}$, sequence of slot-and-filler observations in game level $g$
+			\Procedure{Discretize\_Fillers}{$\mathbf{L_{g,s,t}}$}
+			\State {$\mathbf{Z} \leftarrow$  enumerate\_slots($\mathbf{L_{g,s,t}}$)}
+			\For{each event $z$}
+				\State{$\mathbf{F_{z} } \leftarrow$  get\_fillers($\mathbf{L_{g,s,t}}$)}
+				\State{ $\langle \mathbf{F_{z}}$ , clustersIDs   $\rangle \leftarrow$ Cluster($\mathbf{F_{z}}$) } 
+				\State{model  $\leftarrow$ learn\_classifier($\mathbf{F_{z}}$, clustersIDs) }
+			\EndFor
+
+			\State
+			\For{each student $s'$}	
+				\For{each time step $t'$}
+					\If {$z$ == slot($L_{g,s',t'}$)}
+						\State { $\hat f \leftarrow$  model.predict(filler($ L_{g,s',t'} $)) }
+						\State {$d  \leftarrow $ \text{concat}(z, $\hat f$) }
+						\State{$\mathbf{D_{g,s',t'}} \leftarrow  d$} 
+				\EndIf
+			\EndFor
+			\EndFor
+			\State \Return{ $\mathbf{D}_{g,s,t}$ }
+			\EndProcedure
+			
+		\end{algorithmic}
+		\caption{The filler discretization step of \algname \label{alg:discretize}}
+	\end{algorithm}
+	
+
+	
+	
+	Procedure~\ref{alg:discretize} describes the method we use to discretize fillers for each game.
+	The input is time-ordered student interactions in slot-and-filler format for a single game $g$.
+	The purpose is to transform the fillers of an event into  discrete (multinomial) observations appropriate for sequence modeling.
+	For this, we use an unsupervised clustering algorithm for the fillers of each event.
+	For example, in Figure~\ref{fig:clustering}, we show three clusters: cluster one and two (red and yellow respectively) that represent frequent movements, and cluster zero (black) that represents ``outlier'' movements.
 	We speculate that the outlier group is a result of either technical glitches in the gaming environment or student misconceptions.
-	To build discrete events we use the concatenation of slot and cluster labels as an observation in the sequence modeling phase.
+	To build discrete events we use the concatenation of event and cluster labels as an observation in the sequence modeling phase.
 	For example, instead of modeling from an infinite  domain like ``\texttt{Move Object $\langle x:363, y:83 \rangle$}",
 	we use a number of discrete observations like ``\texttt{Move Object Cluster 1}".
+	
+		
 	
 	The specific clustering algorithm we used in our experiments is DBSCAN~\cite{ester1996density}.
 	In  preliminary experiments, we tried other unsupervised methods, but  we found DBSCAN easier to use because it can find arbitrarily shaped clusters and does not require one to specify the number of clusters in advance.
@@ -359,13 +368,17 @@
 	\subsubsection{Student Performance Clustering}
 	\label{sec:student_disc}
 
-	In order to find an interpretable model that describes the behavior of different groups of students, researchers often use unsupervised and non-parametric methods. 
-	However, since we are particularly trying to find patterns among students that are predictive of their post-test performance, we use the median of post-test scores to divide students into two groups. 
-	In each game level, we place the students who received a post-test score below or equal to the median in the low-performing group and the students who received a post-test score higher than the median in the high-performing group.
-	Due to the small number of students in our dataset, particularly in the later game levels, we only use two clusters. 
-	We hypothesize that students in different performance groups play the game differently.
-	Our sequence modeling phase should be able to capture
-	these differences by learning the interaction patterns of each group in different game levels.
+We use assessment data to group students according to their performance.
+For this, we simply  divide students into two groups by comparing their score to the median score of the population:
+ students who score below or equal to the median are assigned to the low performing group, and the students who received a post-test score higher than the median in the high-performing group.
+ 
+We did not consider other more sophisticated clustering techniques.
+Due to the small number of students in our dataset, particularly in the later game levels, we only
+used two clusters, and did not tune the number of performance groups. 
+
+We hypothesize that students in the two  performance groups play the game differently. 
+Our sequence modeling phase should be able to capture these differences
+by learning the interaction patterns of each group in different game levels.
 
 	
 	\subsection{Sequence Modeling}
@@ -385,36 +398,46 @@
 	
 	\subsection{Feature Vector Modeling}
 
-	Given a sequence of student data, we can determine how likely it is for the student to be in the high-performing or low-performing group.
-	We calculate this likelihood by estimating the Forward-Backward probabilities  on each student sequence of actions  based on the two HMMs models.
-	Then, for each student $s$ in each game level $g$, we calculate the difference ($d_{s,g}$) between the log-likelihood of observing the sequence of actions given the two models. 
-	Since we are learning different HMMs for each game level,
-	we use a hyperbolic tangent function in order to convert the difference to a value between -1 and 1: 
-	
+
+	For each of the games $g$, the HMM parameters  of the high performing group $\theta_{g,\text{high}}$, or the low-performing group  $\theta_{g,\text{low}}$ can be used to determine the likelihood of a sequence.
+	For example,	consider a sequence of discretized student data of a student $s$.
+	By discretized student data, we mean that we have removed the slot and fillers by using clustering.
+	The likelihood that  a sequence was generated by a high performing student is:
 	\begin{equation}
-	d_{s,g} = tanh[ K * (\theta_{g, \text{high}} - \theta_{g, \text{low}})]
+	 \theta_{g, s, \text{high}} =  p( \text{event}_1,\text{event}_2, \dots \text{event}_n | \theta_{g,\text{high}} ) 
 	\end{equation}
 	
-	This step simply scales and shifts the difference between  log-likelihoods in a way that if one HMM fits the
-	data much better than the other, the value of $d_{s,g}$ is closer to one of the boundaries and when there is no clear difference the value would be close to zero. 
-	The parameter K represents the scaling factor.
+	This likelihood can be estimated efficiently with an algorithm called the Forward-Backward algorithm. 
+	For each student $s$ in each game level $g$, we calculate the difference ($d_{s,g}$) between the log-likelihood of observing the sequence of actions given the two models. 
+	%Since we are learning different HMMs for each game level,
+	To scale the values between -1 and 1, we use a function called hyperbolic tangent: 
+	
+	\begin{equation}
+	d_{g,s} = tanh[ K * (\theta_{g, s, \text{high}} - \theta_{g, s, \text{low}})]
+	\end{equation}
+	
+ 	If one HMM fits the data much better than the other, the value of $d_{s,g}$ is closer to -1 or 1.
+	On the other hand, when the likelihoods are similar,  the value of is close to zero. 
+	The parameter $K$ represents the scaling factor.
 	Larger values for K result in output distribution that is closer to +1 and -1 in the case of clear difference.
 	We experimented with different K values across game levels and picked K=100.
 
-
-	In the next step, we use the transformed log-likelihood differences in each game level as features of a linear regression model that predicts the post-test scores:
+	To build a predictive model,  we use the transformed log-likelihood differences in each game level as features of a linear regression model that predicts the post-test scores:
 
 	\begin{equation}
-	\hat {y_s}(\beta) =   \sum_g \beta_g \cdot d_{s,g}  + \beta_0
+	\hat {y_s}(\beta) =   \sum_g \beta_g \cdot d_{g,s}  + \beta_0
 	\end{equation}
+	Here, $\hat {y_s}(\beta)$ is the predicted post-test score, and $\beta_0$ is an intercept for the  model.  
 	
-	Here, $\beta_0$ is an intercept for the  model.  
-	We optimized the parameters of the model using a 5-fold cross-validation on our development set.
-	We experimented with different regularization methods, but only report LASSO~\cite{tibshirani1996regression} as it worked best in our preliminary comparisons:
-
+	We learn the regression parameters using data:
 	\begin{equation}
 	\beta^* = \argmin_\beta || y_s - \hat{y_s}(\beta)  ||_2 + \lambda \cdot || \beta ||_1
 	\end{equation}
+	
+	Here, $y_s$ is the true score of the student.
+	To avoid over-fitting, we experiment with different regularization methods, but only report LASSO~\cite{tibshirani1996regression} as it worked best in our preliminary comparisons.
+	For our experiments, we optimize the parameters of the model using a 5-fold cross-validation on our development set.
+
 	
 	\section{Empirical Evaluation}
 	\label{sec:experiments}
@@ -475,7 +498,7 @@
 	\begin{figure}
 		\centering
 		\includegraphics[width=0.9\columnwidth]{figures/boxplot.pdf}
-		\caption{Boxplot of Sequence Length in Each Game Level}~\label{fig:boxplot}
+		\caption{Boxplot of sequence length in each game level}~\label{fig:boxplot}
 	\end{figure}
 		
 
@@ -486,7 +509,7 @@
 	In the feature vector modeling phase, we use the likelihood of students' sequences in order to build a regression model that is predictive of the post-test results.
 	Finally, we test the regression model on the held-out set (20\%) and report the results.
 	
-	\subsection{Results}
+	\subsection{Quantitative Results}
 	
 	
 	We evaluate two implementations of SPRING, each of them using two ($K=2$) HMMs for each game level as described previously-- one for high-performing students and one for low-performing students:
@@ -532,15 +555,41 @@
 	We use a paired one-sided $t$-test (n=15) to judge the significance of improvement over the baselines.
 	We cannot reject the null hypothesis that the baselines are as good or better than  \algname ($p=0.20$ over the Success/Failure baseline and $p=0.26$ over the Sequence Length baseline).
 	
-	Our results suggest that even though there is a positive correlation between the true and \algname's predicted post-test scores, the improvement in terms of MAE is not conclusive. 
-	This effect is clearly observable in Table \ref{tab:results} where a 0.4 improvement in correlation over the first baseline resulted in 0.09 and 0.26 improvement in MAE and RMSE respectively.
+	Our results suggest that even though there is a significant and positive correlation between the true and \algname's predicted post-test scores, the improvement in terms of MAE  may not be significant. 	
+	We notice that changes in correlation are more drastic than changes in MAE.
+	For example, in Table \ref{tab:results}  a 0.4 improvement in correlation over the first baseline resulted in only a change of 0.09 and  improvement in MAE.
 	It is unclear which evaluation metric is better for our application.
+	 A possible explanation
+of why the MAE is not significant is that our dataset is too
+small. 
+Our held-out set contains only 15 students and a few of
+them achieved poor performance results in the post-test while
+successfully finishing most of the game levels. 
 	Future research could investigate how to evaluate invisible assessment systems, as well as replicate our results with larger datasets to see if the observed trend continues.
+
+A limitation
+of our approach is that our student performance clustering
+phase uses the post-test scores (independent variable) to divide
+students into high- and low-performance groups.
+In order
+to avoid using information from the independent variable to
+calculate the features of our regression model, we are using an
+80\%-20\% split to validate the results instead of for example
+using a 10-fold cross validation. This design decision, while
+necessary, reduces the sample size further.
+
+	
 	
 	Figure~\ref{fig:regression} compares the true post-test scores against the predicted values.
 	The regression line is calculated using LASSO and the 95\% confidence interval is plotted.
 	The regression model also provides us with an insight into how important each game level is in distinguishing between high- and low-performing students.
 	
+	Table \ref{tab:regrweights} shows the weights of each game level in the best performing model.
+	As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screenshot Figure~\ref{fig:figurekracken}), has the highest weight in the regression model. 
+	This supports that the difference between the sequence of student interactions in this game level has the highest factor in distinguishing between high- and low-performing students. 	The difference in predictive performance between game levels is likely related to game design. 
+	Some game levels are designed to introduce game tools and techniques while others are created to present choices to players aligned with math proficiency.
+	We believe the source of difference is mainly due to the fact that finding the solution to later game levels requires mastery in all three major subskills targeted by the game design.	
+
 		
 		
 	\begin{figure}
@@ -549,7 +598,7 @@
 		\caption{Results of predicting the post-test scores of the held-out set along with the regression line and 95\% interval.}~\label{fig:regression}
 	\end{figure}
 	
-	\begin{table}[b]
+	\begin{table}[ht]
 		\centering
 		\begin{tabular}{ll}
 			\hline
@@ -566,10 +615,7 @@
 	\end{table}
 		
 		 
-	Table \ref{tab:regrweights} shows the weights of each game level in the best performing model.
-	As it is shown in the table, game level 11 (\textit{You Kraken Me Up!} -- screenshot Figure~\ref{fig:figurekracken}), has the highest weight in the regression model. 
-	This supports that the difference between the sequence of student interactions in this game level has the highest factor in distinguishing between high- and low-performing students.
-	
+		
 	\begin{figure*}
 		\centering
 		\begin{subfigure}[b]{.48\textwidth}
@@ -619,7 +665,7 @@
 				\end{tikzpicture}
 			}
 			
-			\caption{High Performing}~\label{fig:highhmm}
+			\caption{High performing students}~\label{fig:highhmm}
 		\end{subfigure}\quad
 		\begin{subfigure}[b]{.48\textwidth}
 			\centering
@@ -667,37 +713,19 @@
 				
 				\end{tikzpicture}
 			}\\
-			\caption{Low Performing}~\label{fig:lowhmm}
+			\caption{Low performing students}~\label{fig:lowhmm}
 		\end{subfigure}
-		\caption{Learned Transition Models for One of the Game Levels}~\label{fig:highvslow}
+		\caption{Transition diagram learned from data of students playing one of the games}~\label{fig:highvslow}
 	\end{figure*}
 	
-	
-	\subsection{Discussion and Limitations}
-	In this study, we aimed to explore the effectiveness of data-driven methods for student modeling in educational games.
-	To demonstrate
-	the effectiveness of our framework, we used features from it to predict the post-test results using a regression model and suggested improvement over two baselines.
-	As reported in the results section, the \algname predictions while significantly correlated with true post-test scores, did not lead to significant improvement in MAE.
-	We investigated this problem in more depth and we believe that the reason we could not achieve a significant improvement was mainly because we evaluated the algorithm on a small dataset. 
-	Our held-out set contains only 15 students and a few of them achieved poor performance results in the post-test while successfully finishing most of the game levels.
-	This observation could raise a question of the utility of
-	similar data-driven models. 
-	However, we believe that using a larger data set will lower the negative effect of such students in the future.
-	
-	Another limitation of our approach is that our student performance clustering phase uses the post-test scores (independent variable) to divide students into high- and low-performance groups. 
-	In order to avoid using information from the independent variable to calculate the features of our regression model, we are using an 80\%-20\% split to validate the results instead of for example using a 10-fold cross validation.
-	This design decision, while necessary, reduces the
-	sample size further.
-	
-	The difference in predictive performance between game levels is likely related to game design. 
-	Some game levels are designed to introduce game tools and techniques while others are created to present choices to players aligned with math proficiency.
-	We believe the source of difference is mainly due to the fact that finding the solution to later game levels requires mastery in all three major subskills targeted by the game design.	
+	\newpage
+	\subsection{Discussion of Intepretability}
 
-	
-	On the other hand, predicting post-test scores was not the only reason for designing the pipeline.
-	We  also seek for a descriptive model that can give us insight into low-level patterns in student movements. 
-	This was the main idea behind using HDP-HMMs in the sequence modeling phase and our hypothesis that high-performing and low-performing students have different sequential patterns.
-	 
+	%As reported in the results section, the \algname predictions.
+	We now investigate if \algname  is useful for  providing insight of patterns of student movements. 
+	%$Predicting post-test scores is not the only reason for designing the pipeline.
+%	We  are interested in  descriptive model that can give us insight into low-level patterns in student movements. 
+%	This was the main idea behind using HDP-HMMs in the sequence modeling phase and our hypothesis that high-performing and low-performing students have different sequential patterns. 
 	Figure~\ref{fig:highvslow} shows the difference between two HMMs learned for one of the game levels.
 	In this game level in the initial state, students are presented with composite objects and they have to use the \texttt{Esploda} tool to convert them into single unit objects. 
 	Then, they have to use the \texttt{Gluumi} tools to convert the single unit objects into composite objects that fit the designated area. 
@@ -738,7 +766,7 @@
 	Eagle et al. \cite{eagle2015measuring} used interaction networks (IN) to visualize and derive insight into students' problem-solving behavior and common misconceptions. 
 	They used data from 195 students in 15 classes and created the full IN of every state and possible actions for each game level. 
 	Next, they used clustering to reduce the state-action space into a high-level visualization of how students progress through the puzzle and classify each student interaction into four categories: correct, placement error, rotation error, and puzzle error. 
-	Finally, they picked a smaller set of students (n=10) and used a linear regression model for predicting their post-test results.
+	Finally, they picked a smaller set of students ($n$=10) and used a linear regression model for predicting their post-test results.
 	The results show a direct negative relationship between science-related gameplay errors and the post-test scores.
 	Constructing the full interaction network for each game level 
 	can easily become intractable for complex games such as \textit{Alice in AreaLand}. Moreover, integrating results from multiple game levels is not straightforward since each game level has its own state-action graph and further engineering is required to extract features that are generalizable across game levels. 
@@ -748,16 +776,22 @@
 	
 	Educational games are an interesting source of data that provide evidence of complex cognitive behavior.
 	In this study, we propose a novel data-driven method, \algname,  for student modeling in educational games. 	
-	Modeling student behavior in open-ended environments such as educational games is a promising research direction with applications for game designers, educators, and even policy makers.
+	Modeling student behavior  is a promising research direction with applications for game designers, educators, and even policy makers.
 	
+	Unlike prior work, we do not use domain knowledge to design features that relate game behavior with student performance.
+	Instead, we  explore the effectiveness of data-driven methods for student modeling in educational games.
 	We evaluate our models quantitatively in terms of how well we can predict student assessments.
-	We suggest that the models learned can be interpreted and provide insight into how students learn.
-	Additionally, the parameters of the regression model quantify how much an educational game is useful in distinguishing between high- and low-performing students.
-	
+	To demonstrate the effectiveness of our framework, we predict the post-test scores of students using a regression model.
+	The parameters of the regression model quantify how much an educational game is useful in distinguishing between high- and low-performing students.
+	We suggest that \algname is an interpretable model, and it may provide insight into how students learn.
+
+
 	There are many possible directions for future work. 
 	On a lower level, we can integrate the discretization and sequence modeling step by employing Hidden Markov Models that accept slot and filler sequences as input.
 	On a higher level, instead of dividing students into two groups (high- and low-performing), we can use the HMM to cluster students \cite{bicego2003similarity,smyth1997clustering} into more groups that might be  more representative of different approaches students follow to solve each game level. 
 	We can also replace our regression model with a more powerful ensemble method that considers different subskills in order to integrate features of each game level to predict the post-test scores.
+	Future work could address the assumptions of our method.
+	For example, \algname assumes that  events are always described with the same set of slots, and that slots have exactly one filler.
 	
 	Even though we only evaluated \algname using data from a single game, the algorithm  may be useful for similar gaming environments that use slot-and-filler structures to log student interactions with the system. 
 	We are optimistic that our approach may be useful to make assessment less intrusive and better embedded to classroom education.
