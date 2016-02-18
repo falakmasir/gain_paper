@@ -422,7 +422,7 @@ by learning the interaction patterns of each group in different game levels.
 	Larger values for K result in output distribution that is closer to +1 and -1 in the case of clear difference.
 	We experimented with different K values across game levels and picked K=100.
 
-	To build a predictive model,  we use the transformed log-likelihood differences in each game level as features of a linear regression model that predicts the post-test scores:
+	We use the transformed log-likelihood differences in each game level as features of a linear regression model that predicts the post-test scores:
 
 	\begin{equation}
 	\hat {y_s}(\beta) =   \sum_g \beta_g \cdot d_{g,s}  + \beta_0
