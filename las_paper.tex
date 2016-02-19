@@ -178,7 +178,7 @@
 	
 	Analyzing log data collected from students playing educational games is a  promising way to perform invisible assessment.
 	Studying the sequence of actions in an educational game provides incremental evidence about mastery of specific skills and allows us to infer what students know at any point in time.
-	Prior studies have also reported that invisible assessment may reduce test anxiety, while not sacrificing validity and reliability of the results~\cite{shute2008you}.
+	Prior studies have also reported that invisible assessment may reduce test anxiety while not sacrificing validity and reliability of the results~\cite{shute2008you}.
 	Unfortunately, engineering a system that interprets log data is costly and time-consuming.
 	For example, Shute et al.~\cite{shute2013stealth, shute2009melding} relied extensively on domain expertise to define a \textit{Competency Model} in the form of a Bayesian Network to describe the set of knowledge and skills involved in the learning environment.
 	They also conducted feature engineering on the performance data to build an \textit{Evidence Model} that expresses how student interactions with the system constitute evidence about competency model variables.
@@ -200,7 +200,7 @@
 	Game data is often logged  in a format that we call a \textit{slot and filler}.
 	In Table~\ref{tbl:log_example}, we show a simplified example of a real educational game log that uses slot and filler structure.
 	The Event Name column lists a number action or events that have been logged.
-	For each event, there is a number a set of slots (properties) that further describe the event.
+	For each event, there is a set of slots (properties) that further describe the event.
 	Each filler represents a property value of the slot.
 	In the context of this paper, we assume that each slot takes exactly one filler.
 	For example, a \texttt{Move Object} event  that represents the learner moving an object on the screen may have $x$ and $y$ coordinates as slots and the target position in two-dimensional space ($361, 82$) as the fillers.
@@ -245,10 +245,10 @@
 	\label{sec:spring}
 	
 	
-	\algname is designed to capture the sequential decision making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge. 
+	\algname is designed to capture the sequential decision-making process of students in a way that is representative of their mastery with minimum reliance on expert knowledge. 
 	Our data analysis pipeline receives raw data of student interactions in slot and filler format and extracts features to build a model that predicts post-test scores from game playing data.
 	\algname assumes that an event  is always described with the same set of slots.
-	For example, an event such as  \texttt{Move Object}, always would be described with $x$ and $y$ slots.
+	For example, an event such as  \texttt{Move Object} always would be described with $x$ and $y$ slots.
 
 	\begin{algorithm}[ht]
 		\begin{algorithmic}[1]
@@ -369,14 +369,13 @@
 	\label{sec:student_disc}
 	
 	We use assessment data to group students according to their performance.
-	For this, we simply  divide students into two groups by comparing their score to the median score of the population: students who score below or equal to the median are assigned to the low performing group, and the students who received a post-test score higher than the median in the high-performing group.
+	For this, we simply  divide students into two groups by comparing their score to the median score of the population: students who score below or equal to the median are assigned to the low-performing group and the students who received a post-test score higher than the median in the high-performing group.
 	 
 	We did not consider other more sophisticated clustering techniques.
 	Due to the small number of students in our dataset, particularly in the later game levels, we only
-	used two clusters, and did not tune the number of performance groups.
-	We hypothesize that students in the two  performance groups play the game differently. 
-	Our sequence modeling phase should be able to capture these differences
-	by learning the interaction patterns of each group in different game levels.
+	use two clusters and do not tune the number of performance groups.
+	We hypothesize that students in the two performance groups play the game differently. 
+	Our sequence modeling phase should be able to capture these differences by learning the interaction patterns of each group in different game levels.
 
 	
 	\subsection{Sequence Modeling}
@@ -762,9 +761,9 @@
 	In this study, we propose a novel data-driven method, \algname,  for student modeling in educational games. 	
 	Modeling student behavior  is a promising research direction with applications for game designers, educators, and even policy makers.
 	
-	Unlike prior work, we do not use domain knowledge to design features that relate game behavior with student performance.
+	Unlike prior work in invisible assessment, we do not use domain knowledge to design features that relate gameplay behavior with student performance.
 	Instead, we  explore the effectiveness of data-driven methods for student modeling in educational games.
-	We evaluate our models quantitatively in terms of how well we can predict student assessments.
+	We evaluate our models quantitatively in terms of how well it can predict student assessments.
 	To demonstrate the effectiveness of our framework, we predict the post-test scores of students using a regression model.
 	The parameters of the regression model quantify how much an educational game is useful in distinguishing between high- and low-performing students.
 	We suggest that \algname is an interpretable model, and it may provide insight into how students learn.
@@ -775,7 +774,7 @@
 	On a higher level, instead of dividing students into two groups (high- and low-performing), we can use the HMM to cluster students \cite{bicego2003similarity,smyth1997clustering} into more groups that might be  more representative of different approaches students follow to solve each game level. 
 	We can also replace our regression model with a more powerful ensemble method that considers different subskills in order to integrate features of each game level to predict the post-test scores.
 	Future work could address the assumptions of our method.
-	For example, \algname assumes that  events are always described with the same set of slots, and that slots have exactly one filler.
+	For example, \algname assumes that events are always described with the same set of slots and each slot can only accept one filler.
 	
 	Even though we only evaluated \algname using data from a single game, the algorithm  may be useful for similar gaming environments that use slot-and-filler structures to log student interactions with the system. 
 	We are optimistic that our approach may be useful to make assessment less intrusive and better embedded to classroom education.
